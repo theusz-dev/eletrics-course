@@ -1,0 +1,232 @@
+---
+titulo: Identificando componentes numa placa
+modulo: m14-placas
+ordem: 3
+nivel: I
+duracaoMin: 35
+objetivos:
+  - Seguir um roteiro para identificar uma peça desconhecida numa placa
+  - Reconhecer pelo formato e pela marcação resistores, capacitores, diodos, LEDs, transistores, circuitos integrados, relés, fusíveis e conectores
+  - Ler os códigos de três algarismos de capacitores, trimpots e resistores SMD
+  - Achar o pino 1 de um circuito integrado e contar os outros pinos
+  - Saber quando a marcação não basta e é preciso consultar a folha de dados
+prerequisitos:
+  - m14-placas/02-anatomia-da-placa
+  - m04-passivos/01-resistores
+  - m04-passivos/03-capacitores
+  - m09-semicondutores/02-diodo
+tags: [componentes, encapsulamento, código de cores, código de capacitor, pino 1, folha de dados, identificação]
+seguranca: baixa-tensao
+rascunho: false
+---
+
+import { getPoster } from '../../../three/catalog';
+import JogoPlaca from '../../../lessons/m14/JogoPlaca.tsx';
+
+Um técnico abre uma central de portão parada e vê oitenta peças. Ele não testa uma por uma: primeiro reconhece o que cada bloco faz (a fonte, o microcontrolador, os relés do motor), depois procura a peça que tem a ver com o sintoma. Esse primeiro passo, olhar e saber o que é, é o assunto desta aula. Com um roteiro e alguns códigos, quase toda peça de uma placa comum se deixa identificar a olho.
+
+## O roteiro
+
+Diante de uma peça desconhecida, siga quatro perguntas, nesta ordem:
+
+<Steps>
+<Step title="Qual é o designador?">
+A serigrafia ao lado da peça diz a letra (aula <LinkAula id="m14-placas/01-simbolos-e-esquemas" />). R é resistor, C é capacitor, Q é transistor. Isso já elimina quase todas as dúvidas, quando a serigrafia está lá.
+</Step>
+<Step title="Qual é o formato?">
+O <Term id="encapsulamento">encapsulamento</Term> (o corpo e as pernas) diz muito: um cilindro com faixas coloridas e duas pernas é resistor; um corpo em forma de D com três pernas é transistor ou regulador; um bloco preto com duas fileiras de pinos é circuito integrado.
+</Step>
+<Step title="O que está escrito?">
+Faixas de cores, códigos de três algarismos, a referência do fabricante (BC337, 1N4007, NE555), a tensão de um capacitor, a bobina de um relé.
+</Step>
+<Step title="Onde ela está ligada?">
+Uma peça de três pernas perto do relé, com uma perna no terra, é quase certamente o transistor que comanda a bobina. Seguir as trilhas confirma o papel da peça no circuito.
+</Step>
+</Steps>
+
+Quando nada disso basta, a referência impressa vai para o buscador: a <Term id="folha-de-dados">folha de dados</Term> (*datasheet*) do fabricante diz o que é a peça, a pinagem e os limites.
+
+## Peça por peça
+
+**Resistores.** Cilindro pequeno bege ou azul com faixas coloridas, duas pernas iguais. O valor vem no <Term id="codigo-de-cores">código de cores</Term> (aula <LinkAula id="m04-passivos/01-resistores" />): marrom, preto, vermelho é $10 \times 10^2 = 1.000\,\Omega$. Resistores de potência são blocos cerâmicos brancos com o valor escrito (5W 0R22).
+
+**Capacitores.** Os **cerâmicos** são pastilhas pequenas, laranja ou azuis, com um código de três algarismos. Os de **poliéster** são blocos retangulares, às vezes com "X2" quando são feitos para a rede. Os **eletrolíticos** são cilindros altos com a capacitância e a tensão escritas, uma faixa clara com sinais de "−" do lado negativo e uma cruz no topo, a válvula que se abre se ele estufar (aula <LinkAula id="m04-passivos/03-capacitores" />).
+
+**Diodos.** Parecem resistores, mas com o corpo preto (os de retificação, 1N4007) ou de vidro (os de sinal, 1N4148), e com **uma faixa só**, numa das pontas: a faixa é o catodo, a barra do símbolo.
+
+**LEDs.** Cúpula transparente ou colorida. A perna mais comprida é o anodo; do lado do catodo, a borda da cúpula tem um chanfro reto (aula <LinkAula id="m09-semicondutores/04-leds" />).
+
+**Transistores.** Os pequenos vêm no encapsulamento TO-92: um corpo preto em forma de D, com a referência na face plana (BC337, BC547, 2N2222). Os de potência, no TO-220, com uma aba metálica furada para o dissipador. **A ordem das pernas muda de um modelo para outro**: o BC337 e o 2N2222 são ambos NPN, mas com as pernas em ordens diferentes. Sem a folha de dados, não adivinhe.
+
+**Circuitos integrados.** Corpo preto retangular com duas fileiras de pinos (o DIP, de furo passante) ou pernas nos quatro lados (os SMD, como o QFP). A referência vem impressa: NE555, LM358, ATmega328.
+
+**Relés.** Caixa plástica grande, com a tensão da bobina (12VDC) e o limite dos contatos (10A 250VAC) impressos. Muitas vezes há um pequeno desenho com a pinagem.
+
+**Fusíveis.** Tubinho de vidro com tampas metálicas, preso em clipes ou soldado, com a corrente gravada na tampa (1A, T2A). O "T" indica fusível retardado (aula <LinkAula id="m04-passivos/06-fusiveis-e-protecao" />).
+
+**Conectores, bornes, jumpers e chaves.** Bornes têm parafusos; conectores têm pinos numa moldura com trava; jumpers são capinhas sobre uma barra de pinos; chaves DIP têm alavancas numeradas e a palavra ON. Trimpots têm uma fenda para chave de fenda.
+
+## Os códigos de três algarismos
+
+Capacitores cerâmicos, trimpots e resistores SMD usam o mesmo código: os dois primeiros algarismos são o valor, e o terceiro é **quantos zeros** vêm depois.
+
+$$
+\text{valor} = \overline{AB} \times 10^{C}
+$$
+
+| Peça | Código | Conta | Valor |
+|---|---|---|---|
+| Capacitor cerâmico | 104 | $10 \times 10^4\,\text{pF}$ | 100.000 pF = 100 nF |
+| Capacitor cerâmico | 103 | $10 \times 10^3\,\text{pF}$ | 10 nF |
+| Capacitor cerâmico | 471 | $47 \times 10^1\,\text{pF}$ | 470 pF |
+| Trimpot | 105 | $10 \times 10^5\,\Omega$ | 1 MΩ |
+| Resistor SMD | 472 | $47 \times 10^2\,\Omega$ | 4,7 kΩ |
+
+No capacitor, o código está sempre em **picofarads**. Uma letra depois do código é a tolerância (J = 5 %, K = 10 %, M = 20 %), não um multiplicador.
+
+## O pino 1 e a contagem
+
+Todo circuito integrado tem uma marca no **pino 1**: um chanfro (meia-lua) numa das pontas, um ponto ao lado de um pino ou uma ilha quadrada na placa. Com a peça vista de cima e a marca à esquerda, o pino 1 fica embaixo à esquerda, e a contagem segue **no sentido anti-horário**: para a direita na fileira de baixo, depois de volta pela fileira de cima.
+
+No 555 da placa temporizadora, que tem 8 pinos, isso dá: 1 GND, 2 disparo (TRIG), 3 saída (OUT), 4 reset, 5 controle (CTRL), 6 limiar (THR), 7 descarga (DIS) e 8 alimentação (VCC). Na placa, o pino 1 tem a ilha quadrada, e o soquete tem o chanfro do mesmo lado do chanfro do CI. Encaixar o CI ao contrário no soquete é um defeito clássico: ele esquenta e pode queimar ao ligar.
+
+## Explore: o que é isso?
+
+<JogoPlaca client:visible poster={getPoster('relay-timer-board')} />
+
+Jogue uma rodada inteira. Para cada peça, antes de escolher, gire a placa e aproxime: procure o designador na serigrafia, o formato e alguma marcação. Depois de responder, leia a pista: ela diz o detalhe que denuncia a peça.
+
+1. Qual peça foi a mais difícil de diferenciar? Qual detalhe teria resolvido?
+2. Na placa, procure o transistor Q1 e leia o que está escrito na face plana. Que informação falta ali para você ligar as pernas certas?
+
+Diodo, resistor e fusível costumam ser os mais confundidos à distância, porque os três são cilindros com duas pernas. O resistor tem várias faixas; o diodo, uma só; o fusível é de vidro com tampas metálicas. No Q1, a face plana diz o modelo (BC337), mas não diz qual perna é o coletor: isso só a folha de dados diz.
+
+## Exemplo resolvido: lendo a placa temporizadora
+
+Você precisa montar a lista de materiais de uma placa sem manual. Com uma lupa, você lê:
+
+- **C4**, pastilha laranja com "103": $10 \times 10^3\,\text{pF} = 10.000\,\text{pF} = 10\,\text{nF}$.
+- **RV1**, trimpot com "105": $10 \times 10^5\,\Omega = 1\,\text{M}\Omega$, ajustável de zero até isso.
+- **R3**, faixas marrom, preto, vermelho, dourado: 1, 0 e $\times 10^2$, com 5 % de tolerância: $1\,\text{k}\Omega$.
+- **C1**, cilindro com "470µF 25V": 470 µF, para até 25 V numa placa de 12 V. Folga de sobra, como deve ser.
+- **K1**, relé com "12VDC" e "10A 250VAC": bobina de 12 V em CC; contatos para até 10 A em 250 V CA.
+- **Q1**, TO-92 com "BC337": transistor NPN para até 800 mA (pela folha de dados), de sobra para a bobina de uns 30 mA.
+
+Com isso, e o esquema da aula <LinkAula id="m14-placas/01-simbolos-e-esquemas" />, você sabe o que comprar se uma peça queimar e como conferir se a placa é a certa para uma aplicação: o relé aguenta 10 A, mas a trilha e o borne também precisam aguentar.
+
+<RealCase title="A peça azul na entrada da central">
+
+Na entrada de alimentação de quase toda central de portão e de muitas fontes, logo depois do fusível, há um **disco azul ou vermelho** com duas pernas e um código como "14D471" ou "S14K275". Parece um capacitor cerâmico grande, mas é um **varistor**: uma peça que quase não conduz na tensão normal e passa a conduzir muito quando aparece um pico (um raio próximo, uma manobra na rede), desviando o surto do resto da placa.
+
+Quando o surto é grande demais, o varistor se sacrifica: estoura, escurece, às vezes leva o fusível junto. Um varistor rachado é um dos defeitos mais comuns depois de uma tempestade, e você vai vê-lo de novo em <LinkAula id="m15-diagnostico/03-defeitos-comuns" />.
+
+</RealCase>
+
+<RealCase title="A peça sem nada escrito">
+
+Em placas SMD, muitas peças pequenas não têm marcação nenhuma: capacitores cerâmicos SMD quase nunca têm, e alguns resistores 0402 também não. A identificação vem de outro jeito: pelo designador na serigrafia (quando há), pelo esquema do manual de serviço, ou pela medição fora da placa. Um capacitor SMD marrom ou bege sem marcação, entre duas ilhas perto de um CI, é quase sempre um capacitor de filtro de 100 nF, mas confirme antes de trocar.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Confundir diodo com resistor.** Os dois são cilindros de duas pernas. Diodo tem uma faixa só, numa ponta; resistor tem várias faixas.
+- **Adivinhar a pinagem de um transistor.** Modelos parecidos têm pernas em ordens diferentes. Consulte a folha de dados ou meça com o teste de diodo do multímetro (aula <LinkAula id="m03-medicoes/04-resistencia-continuidade-e-diodo" />).
+- **Ler o código de cores ao contrário.** A faixa de tolerância (dourada ou prateada) fica na ponta da direita. Comece pela outra.
+- **Encaixar o CI ao contrário no soquete.** Confira o chanfro do CI, o do soquete e a ilha quadrada da placa antes de ligar.
+- **Trocar um capacitor eletrolítico por outro de tensão menor.** A tensão escrita é um limite; o substituto precisa ter a mesma tensão ou mais, e a mesma capacitância.
+- **Confundir varistor com capacitor.** O varistor fica na entrada da rede, entre fase e neutro. Medido com o multímetro, os dois parecem um circuito aberto; o código é o que os diferencia.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'numerica',
+      prompt: 'Um capacitor cerâmico tem o código 104. Qual é a capacitância, em nanofarads?',
+      answer: 100,
+      tolerance: 0.01,
+      unit: 'nF',
+      explanation: '104 = 10 × 10⁴ pF = 100.000 pF = 100 nF.',
+    },
+    {
+      type: 'numerica',
+      prompt: 'Um trimpot tem o código 503. Qual é a resistência máxima, em quilo-ohms?',
+      answer: 50,
+      tolerance: 0.01,
+      unit: 'kΩ',
+      explanation: '503 = 50 × 10³ Ω = 50.000 Ω = 50 kΩ.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Uma peça cilíndrica preta com duas pernas e uma única faixa cinza numa ponta, escrita "1N4007". O que é?',
+      options: [
+        {
+          text: 'Um diodo retificador; a faixa marca o catodo',
+          correct: true,
+          feedback: 'Uma faixa só, numa ponta, é a marca do catodo. O 1N4007 é o diodo retificador mais comum.',
+        },
+        {
+          text: 'Um resistor de 1 Ω',
+          feedback:
+            'Resistores têm várias faixas de cores para o valor. Uma faixa só, numa ponta, é a marca de um diodo.',
+        },
+        {
+          text: 'Um fusível',
+          feedback: 'Fusíveis de vidro têm tampas metálicas nas pontas. Este é um diodo, com o catodo na faixa.',
+        },
+      ],
+    },
+    {
+      type: 'ordenar',
+      prompt: 'Ponha na ordem do roteiro para identificar uma peça desconhecida.',
+      items: [
+        'Ler o designador na serigrafia',
+        'Observar o formato (encapsulamento)',
+        'Ler a marcação (cores, código, referência)',
+        'Ver onde ela está ligada na placa',
+        'Consultar a folha de dados pela referência',
+      ],
+      explanation:
+        'Do mais rápido ao mais trabalhoso: a serigrafia muitas vezes já resolve; o formato e a marcação dão o tipo e o valor; as ligações dizem o papel; a folha de dados confirma pinagem e limites.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Um circuito integrado de 8 pinos é visto de cima, com o chanfro à esquerda. Onde fica o pino 5?',
+      options: [
+        {
+          text: 'Na fileira de cima, na ponta direita',
+          correct: true,
+          feedback:
+            'O pino 1 fica embaixo à esquerda, e a contagem é anti-horária: 1 a 4 embaixo, da esquerda para a direita; 5 a 8 em cima, da direita para a esquerda.',
+        },
+        {
+          text: 'Na fileira de cima, na ponta esquerda',
+          feedback:
+            'Esse é o pino 8, o último. A contagem anti-horária sobe pela direita: o 5 fica em cima, à direita.',
+        },
+        {
+          text: 'Na fileira de baixo, ao lado do pino 4',
+          feedback: 'A fileira de baixo vai só do 1 ao 4. O 5 é o primeiro da fileira de cima, do lado direito.',
+        },
+      ],
+    },
+    {
+      type: 'vf',
+      prompt: 'Dois transistores NPN em TO-92, de modelos diferentes, sempre têm as pernas na mesma ordem.',
+      answer: false,
+      explanation:
+        'A ordem das pernas varia de modelo para modelo, e até de fabricante para fabricante. Confira na folha de dados ou meça com o teste de diodo.',
+    },
+  ]}
+/>
+
+## Resumo
+
+- Para identificar uma peça: **designador**, **formato**, **marcação**, **ligações** e, se preciso, a **folha de dados**.
+- Resistor tem várias faixas; diodo tem uma faixa só, no catodo; eletrolítico tem faixa de "−" e tensão escrita; LED tem perna longa no anodo e chanfro no catodo.
+- O código de **três algarismos** (capacitor, trimpot, resistor SMD) é $\overline{AB} \times 10^C$: 104 = 100 nF, 105 = 1 MΩ, 472 = 4,7 kΩ. No capacitor, a unidade é o picofarad.
+- No circuito integrado, o **pino 1** tem uma marca, e a contagem é **anti-horária** vista de cima.
+- Transistores e reguladores **não têm pinagem padrão**: consulte a folha de dados antes de soldar.
+
+Na próxima aula você vai configurar a placa temporizadora mudando o jumper e as chaves DIP, e ver como cada posição muda o circuito: <LinkAula id="m14-placas/04-jumpers-e-dip-switches" />.

@@ -1,0 +1,231 @@
+---
+titulo: Jumpers, DIP switches e configuração
+modulo: m14-placas
+ordem: 4
+nivel: I
+duracaoMin: 35
+objetivos:
+  - Explicar o que um jumper faz no circuito em cada posição (1–2, 2–3 ou retirado)
+  - Ler uma chave DIP, contar as combinações possíveis e converter uma combinação em número
+  - Mudar o modo de funcionamento da placa temporizadora pelo jumper e o tempo pela chave DIP e pelo trimpot
+  - Calcular o tempo de um temporizador com 555 a partir de R e C
+  - Reconhecer jumpers que anulam dispositivos de segurança e por que não devem ser usados assim
+prerequisitos:
+  - m14-placas/03-identificando-componentes
+  - m04-passivos/04-circuito-rc
+  - m04-passivos/07-chaves-botoes-e-reles
+tags: [jumper, DIP switch, chave DIP, configuração, '555', temporizador, monoestável, astável, pull-up, binário]
+seguranca: baixa-tensao
+rascunho: false
+---
+
+import { getPoster } from '../../../three/catalog';
+import JumperDip from '../../../lessons/m14/JumperDip.tsx';
+
+O manual da central do portão diz: "para ligar o fechamento automático, coloque o jumper em JP3". O do módulo de relé diz: "ajuste as chaves 1 a 4 da DIP para o endereço da placa". Em nenhum dos dois casos você troca uma peça ou faz uma solda: muda um pino de lugar ou vira uma alavanca. Jumpers e chaves DIP são o jeito de configurar uma placa sem ferramenta, e cada posição muda uma ligação no circuito. Entender qual ligação muda é o que separa configurar de adivinhar.
+
+## O jumper: um fio que se põe e se tira
+
+Um <Term id="jumper">jumper</Term> é uma capinha plástica com um contato metálico por dentro, que encaixa em dois pinos vizinhos de uma barra de pinos e os liga. Os pinos ficam a 2,54 mm um do outro (um décimo de polegada). Com o jumper **colocado**, os dois pinos estão em curto; **retirado**, estão abertos.
+
+A barra de três pinos é a mais comum, porque dá uma escolha entre duas opções:
+
+- **Jumper em 1–2:** o pino do meio (2) fica ligado ao pino 1.
+- **Jumper em 2–3:** o pino do meio fica ligado ao pino 3.
+- **Sem jumper:** o pino do meio fica solto.
+
+O pino do meio é o "comum": ele vai à entrada que você quer configurar, e os pinos das pontas vão às duas fontes possíveis do sinal. É uma chave de duas posições, como a chave inversora de um interruptor (aula <LinkAula id="m04-passivos/07-chaves-botoes-e-reles" />), só que mudada à mão e uma vez só.
+
+Há outros jumpers que não são capinhas: o **jumper de fio** (um pedaço de fio nu soldado numa placa de face simples, para uma trilha "pular" outra), o **resistor de 0 Ω** (um SMD marcado "0" ou "000", que é só uma ponte) e o **jumper de solda** (duas ilhas coladas na placa, que se fecham com uma gota de solda).
+
+### O jumper que escolhe o nível lógico
+
+O uso mais comum é dizer a um microcontrolador o que ele deve fazer. A entrada do microcontrolador tem um <Term id="pull-up">pull-up</Term>, um resistor para o positivo; o jumper liga essa entrada ao terra. Com o jumper, a entrada lê 0; sem ele, o pull-up faz a entrada ler 1. O programa lê esse bit ao ligar e escolhe o modo. Por isso muitas placas pedem para **mudar o jumper com a placa desligada**: elas só leem a configuração quando ligam.
+
+## A chave DIP: vários jumpers numa caixinha
+
+A <Term id="dip-switch">chave DIP</Term> é uma fileira de chaves pequenas, numeradas, cada uma ligando ou não um par de pinos. A palavra **ON** impressa na caixinha diz para que lado a alavanca fecha a chave. Elas existem com 1 a 12 chaves, e o nome vem do encapsulamento DIP, o mesmo dos circuitos integrados.
+
+Com $n$ chaves de duas posições, o número de combinações é:
+
+$$
+N = 2^n
+$$
+
+Uma DIP de 4 chaves dá $2^4 = 16$ combinações; uma de 8, $2^8 = 256$. Quando as chaves formam um número (o endereço de uma placa numa rede, o código de um controle antigo), cada chave $k$ costuma valer $2^{k-1}$: a chave 1 vale 1, a 2 vale 2, a 3 vale 4, a 4 vale 8. O número é a soma das chaves em ON. Chaves 1 e 3 em ON dão $1 + 4 = 5$. Confira no manual: alguns fabricantes numeram ao contrário.
+
+## A placa temporizadora e o seu jumper
+
+Na placa temporizadora deste módulo, o jumper **JP1** escolhe de onde vem o disparo do 555. O pino 2 (o disparo) liga ao pino do meio de JP1:
+
+- **MONO (1–2):** o pino 2 vai ao botão DISPARO, com o pull-up R2. Cada aperto dispara **um** tempo: o 555 funciona como monoestável (um estado estável, o desligado, e um temporário, o ligado).
+- **PISCA (2–3):** o pino 2 vai ao capacitor de tempo, junto do pino 6. O 555 dispara a si mesmo cada vez que o capacitor descarrega, e oscila sem parar: funciona como astável (nenhum estado estável).
+- **Sem jumper:** o pino 2 fica solto. Uma entrada solta "flutua": capta ruído e pode disparar sozinha ou nunca. Comportamento imprevisível.
+
+A chave DIP **SW1** tem duas chaves. A chave 1 (**LONGO**) liga o capacitor C3, de 100 µF, em paralelo com C2, de 10 µF. A chave 2 (**BIP**) liga o buzzer na saída do 555.
+
+### O tempo de um 555
+
+O 555 do temporizador conta o tempo pela carga de um capacitor através de um resistor, como no circuito RC da aula <LinkAula id="m04-passivos/04-circuito-rc" />. No modo monoestável, a saída fica ligada até o capacitor chegar a dois terços da alimentação, o que leva:
+
+$$
+t_\text{mono} = 1{,}1 \cdot R \cdot C
+$$
+
+onde $R$ é a resistência que carrega o capacitor (aqui, R3 mais o trimpot RV1), em ohms, e $C$ é o capacitor de tempo, em farads. No modo astável, o capacitor carrega por R3 + RV1 e descarrega só por RV1:
+
+$$
+t_\text{ligado} = 0{,}693 \cdot (R_3 + R_{V1}) \cdot C \qquad t_\text{desligado} = 0{,}693 \cdot R_{V1} \cdot C
+$$
+
+Você vai ver o 555 por dentro, com os seus comparadores, na aula <LinkAula id="m11-digital/05-ci-555" />. Aqui basta saber que o tempo é proporcional a $R$ e a $C$: dobrar qualquer um dobra o tempo.
+
+## Explore: o circuito com o jumper e a DIP
+
+<Simulation circuit="m14/temporizador-jumper" instruments={[{ kind: 'osciloscopio', series: ['VC', 'VS'] }, 'multimetro']} />
+
+1. Aperte o play. Com JP1 em **MONO**, segure o botão DISPARO por um instante. No osciloscópio, veja o capacitor de tempo (VC) subir e a saída do 555 (VS) ficar ligada até ele chegar a 8 V, dois terços de 12 V. Quanto tempo a saída fica ligada?
+2. Ligue a chave 1 da DIP (**LONGO**) e dispare de novo. Quanto tempo agora?
+3. Ponha JP1 em **PISCA**. O que o relé faz, sem ninguém apertar nada? Entre quais tensões VC sobe e desce?
+4. Ligue a chave 2 (**BIP**) e veja o buzzer acompanhar a saída.
+
+Em MONO, a saída fica ligada por cerca de 1,1 s; com LONGO, uns 12 s, onze vezes mais, porque $C$ passou de 10 µF para 110 µF. Em PISCA, o relé liga e desliga sozinho, cerca de 0,7 s em cada estado, e VC sobe e desce entre 4 V e 8 V (um e dois terços de 12 V). O primeiro pulso é mais longo, porque o capacitor parte de zero.
+
+## Explore: a mesma configuração na placa
+
+<JumperDip client:visible poster={getPoster('relay-timer-board')} />
+
+1. Mude o jumper de MONO para PISCA e veja a capinha mudar de pinos na placa 3D. Qual pino ela deixa de cobrir?
+2. Em MONO, aperte o DISPARO com o trimpot em 100 kΩ, e depois em 500 kΩ. O tempo cresce na mesma proporção?
+3. Tire o jumper. Por que o texto diz "comportamento imprevisível"?
+
+Com o trimpot em 500 kΩ, o tempo vai de 1,1 s para $1{,}1 \times 501\,\text{k}\Omega \times 10\,\mu\text{F} \approx 5{,}5\,\text{s}$: cinco vezes mais, como a resistência. Sem o jumper, a entrada de disparo não está ligada a nada: ela não lê nem nível alto nem baixo de forma confiável.
+
+## Exemplo resolvido: o tempo máximo da placa
+
+Qual é o maior tempo que a placa temporizadora consegue em MONO, com o trimpot RV1 de 1 MΩ todo girado e a chave LONGO ligada?
+
+A resistência é R3 mais RV1 inteiro: $R = 1\,\text{k}\Omega + 1.000\,\text{k}\Omega = 1.001\,\text{k}\Omega \approx 1{,}0 \times 10^6\,\Omega$. A capacitância é C2 mais C3: $C = 10\,\mu\text{F} + 100\,\mu\text{F} = 110\,\mu\text{F} = 1{,}1 \times 10^{-4}\,\text{F}$.
+
+$$
+t = 1{,}1 \times 1{,}0 \times 10^6\,\Omega \times 1{,}1 \times 10^{-4}\,\text{F} \approx 121\,\text{s}
+$$
+
+Uns dois minutos. E o menor, com RV1 em zero e LONGO desligada: $1{,}1 \times 1.000\,\Omega \times 10\,\mu\text{F} = 0{,}011\,\text{s}$, onze milissegundos, curto demais para o relé, que leva uns 10 ms (típico) para fechar. Na prática, o tempo útil vai de uns 0,1 s a 2 minutos.
+
+Na vida real, o tempo fica um pouco diferente do calculado: capacitores eletrolíticos têm tolerância de 20 % e, com o uso, perdem capacitância. Um temporizador que "está mais curto do que antes" é, muitas vezes, um eletrolítico envelhecido.
+
+<RealCase title="O jumper do fechamento automático">
+
+Centrais de portão costumam ter jumpers ou chaves DIP para as funções: fechamento automático, tempo de pausa, uso de fotocélula, motor deslizante ou basculante (aula <LinkAula id="m16-portao/03-a-central-por-dentro" />). Algumas trazem um jumper que **dispensa a fotocélula**: ele faz a central se comportar como se o feixe nunca fosse interrompido.
+
+Esse jumper existe para testes e para instalar a central antes da fotocélula, e o manual avisa isso. Deixá-lo colocado num portão em uso tira a proteção que impede o portão de fechar sobre uma pessoa, um carro ou uma criança. Se a fotocélula está com defeito, conserte ou troque a fotocélula. Nunca deixe o jumper.
+
+</RealCase>
+
+<RealCase title="O jumper JD-VCC do módulo de relé">
+
+Os módulos de relé de 1, 2 ou 4 canais usados com Arduino trazem um jumper entre os pinos **JD-VCC** e **VCC**. Com o jumper, os relés são alimentados pelo mesmo 5 V do Arduino. Sem ele, os relés ganham uma fonte separada no JD-VCC, e o Arduino só acende o LED de um optoacoplador: a isolação galvânica fica completa (aula <LinkAula id="m09-semicondutores/09-tiristores-e-isolamento" />).
+
+Para uma bancada com cargas pequenas, o jumper colocado é mais simples. Para comandar cargas da rede ou motores que geram ruído, tirar o jumper e usar duas fontes protege o microcontrolador. Antes de tirar, confira no módulo que o lado do JD-VCC tem mesmo uma fonte; sem ela, os relés simplesmente não ligam.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Mudar o jumper com a placa ligada.** Muitas placas só leem a configuração ao ligar; outras podem dar um pulso indesejado na saída. Desligue, mude, ligue.
+- **Perder o jumper.** Uma barra de pinos sem a capinha é uma entrada solta. Guarde o jumper "estacionado" em um pino só, como muitos técnicos fazem: ele fica ali, sem ligar nada, pronto para ser usado.
+- **Ler a DIP ao contrário.** Procure a palavra ON e o número de cada chave. Fotografe a configuração antes de mexer.
+- **Jumpear um dispositivo de segurança.** Fotocélula, fim de curso, termostato, fusível e DR existem para proteger. Um jumper que os anula é para teste, com supervisão, e sai antes de o equipamento voltar ao uso.
+- **Confiar no tempo calculado ao segundo.** Capacitores eletrolíticos variam bastante. Se o tempo importa, ajuste no trimpot e meça com o cronômetro.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'multipla',
+      prompt: 'Numa barra de três pinos, o jumper está em 2–3. O que está ligado?',
+      options: [
+        {
+          text: 'O pino do meio (2) ao pino 3; o pino 1 fica solto',
+          correct: true,
+          feedback: 'O jumper liga os dois pinos que ele cobre. O pino 1 fica aberto.',
+        },
+        {
+          text: 'Os três pinos entre si',
+          feedback: 'A capinha cobre só dois pinos vizinhos. O terceiro fica de fora.',
+        },
+        {
+          text: 'O pino 1 ao pino 3',
+          feedback: 'Os pinos 1 e 3 não são vizinhos. O jumper em 2–3 liga o do meio ao 3.',
+        },
+      ],
+    },
+    {
+      type: 'numerica',
+      prompt: 'Quantas combinações diferentes tem uma chave DIP de 6 chaves?',
+      answer: 64,
+      tolerance: 0,
+      explanation: 'N = 2ⁿ = 2⁶ = 64.',
+    },
+    {
+      type: 'numerica',
+      prompt:
+        'Numa DIP de 4 chaves em que a chave k vale 2 elevado a (k − 1), as chaves 2 e 4 estão em ON e as outras em OFF. Qual é o número?',
+      answer: 10,
+      tolerance: 0,
+      explanation: 'A chave 2 vale 2 e a chave 4 vale 8: 2 + 8 = 10.',
+    },
+    {
+      type: 'numerica',
+      prompt:
+        'Um 555 em modo monoestável tem R = 47 kΩ e C = 100 µF. Quanto tempo a saída fica ligada, em segundos?',
+      answer: 5.17,
+      tolerance: 0.03,
+      unit: 's',
+      explanation: 't = 1,1 × R × C = 1,1 × 47.000 Ω × 0,000 1 F = 5,17 s.',
+    },
+    {
+      type: 'multipla',
+      prompt:
+        'Na placa temporizadora, a chave LONGO liga um capacitor de 100 µF em paralelo com o de 10 µF. O que acontece com o tempo?',
+      options: [
+        {
+          text: 'Fica 11 vezes maior, porque a capacitância passa de 10 µF para 110 µF',
+          correct: true,
+          feedback:
+            'Capacitores em paralelo somam as capacitâncias, e o tempo é proporcional a C: 110 ÷ 10 = 11.',
+        },
+        {
+          text: 'Fica 10 vezes maior, porque o novo capacitor é 10 vezes o antigo',
+          feedback:
+            'Os dois ficam ligados juntos, em paralelo, e as capacitâncias se somam: 10 + 100 = 110 µF, 11 vezes a original.',
+        },
+        {
+          text: 'Fica menor, porque mais capacitores descarregam mais depressa',
+          feedback:
+            'Com mais capacitância, o mesmo resistor leva mais tempo para carregar o conjunto. O tempo cresce.',
+        },
+      ],
+    },
+    {
+      type: 'vf',
+      prompt:
+        'Se a fotocélula do portão está com defeito, deixar colocado o jumper que a dispensa é uma solução aceitável até o fim da semana.',
+      answer: false,
+      explanation:
+        'Sem a fotocélula, o portão pode fechar sobre uma pessoa ou um carro. O jumper é só para teste; a solução é consertar ou trocar a fotocélula, e não usar o portão em modo automático enquanto isso.',
+    },
+  ]}
+/>
+
+## Resumo
+
+- Um **jumper** liga dois pinos vizinhos. Numa barra de três pinos, ele escolhe se o pino do meio vai ao 1 ou ao 3; sem jumper, o pino do meio fica solto.
+- Uma **chave DIP** é uma fileira de chaves numeradas; $n$ chaves dão $2^n$ combinações. Procure a marca ON e confira a numeração no manual.
+- Na placa temporizadora, **JP1** escolhe MONO (um pulso por aperto) ou PISCA (oscila sozinho); a DIP liga o capacitor extra (LONGO) e o buzzer (BIP).
+- O tempo do 555 monoestável é $t = 1{,}1 \cdot R \cdot C$; no astável, $0{,}693 \cdot R \cdot C$ em cada estado. Mais R ou mais C, mais tempo.
+- Mude jumpers com a placa **desligada**, e nunca use um jumper para anular um dispositivo de segurança.
+
+Agora que você lê, reconhece e configura a placa, é hora de pegar no ferro: <LinkAula id="m14-placas/05-soldagem-e-dessoldagem" />.

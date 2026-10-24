@@ -1,0 +1,242 @@
+---
+titulo: Soldagem e dessoldagem
+modulo: m14-placas
+ordem: 5
+nivel: I
+duracaoMin: 40
+objetivos:
+  - Escolher a solda, a temperatura do ferro e a ponta para soldar uma placa
+  - 'Soldar um componente PTH na ordem certa: aquecer, aplicar a solda, retirar o fio, retirar o ferro, cortar'
+  - Reconhecer uma junta boa, uma junta fria, pouca solda, solda demais e uma ponte
+  - Explicar por que uma ilha ligada a um plano de terra demora mais para soldar
+  - Dessoldar com sugador e malha sem arrancar a ilha
+  - 'Trabalhar com segurança: fumaça, chumbo, queimaduras e respingos'
+prerequisitos:
+  - m14-placas/02-anatomia-da-placa
+  - m14-placas/03-identificando-componentes
+  - m00-comece-aqui/03-ferramentas-essenciais
+tags: [solda, ferro de solda, estanho, fluxo, junta fria, ponte de solda, dessoldagem, sugador, malha dessoldadora, SMD]
+seguranca: baixa-tensao
+rascunho: false
+---
+
+import { getPoster } from '../../../three/catalog';
+import EtapasSolda from '../../../lessons/m14/EtapasSolda.tsx';
+import PerfisJunta from '../../../lessons/m14/figures/PerfisJunta.astro';
+
+A primeira solda de quase todo mundo sai igual: uma bolinha cinza e fosca em volta da perna do componente, que parece firme mas faz o LED piscar quando alguém encosta na placa. O ferro estava quente, a solda derreteu, e mesmo assim a junta não ficou boa. O segredo da solda não está em derreter o estanho: está em aquecer as peças que ele vai unir. Com a ordem certa, uma junta boa leva três segundos.
+
+## O que é soldar
+
+Soldar, em eletrônica, é unir duas peças de metal (a perna do componente e a ilha de cobre) com uma liga que derrete a uma temperatura bem mais baixa que a delas. A liga escorre, molha as duas superfícies e, ao esfriar, forma uma ligação metálica, elétrica e mecânica. Não é cola: uma junta bem feita cria uma camada fina de liga entre o estanho e o cobre.
+
+**A solda.** O fio de solda de eletrônica é uma liga com estanho e um núcleo de fluxo:
+
+- **Estanho e chumbo (60/40 ou 63/37):** derrete por volta de 183 a 190 °C, molha fácil e é a mais simples para aprender. O chumbo é tóxico, e o seu uso em produtos novos é restrito em muitos países.
+- **Sem chumbo (estanho, prata e cobre, como a SAC305):** derrete por volta de 217 a 220 °C. Pede o ferro mais quente e molha com mais dificuldade, mas é a que vem nos aparelhos novos.
+
+Um fio de 0,8 a 1 mm serve para quase tudo em placas comuns.
+
+**O fluxo.** O cobre exposto ao ar cria uma película de óxido, e a solda não gruda em óxido. O <Term id="fluxo-de-solda">fluxo</Term> (uma resina dentro do fio, ou em pasta e caneta) derrete antes da solda, limpa o óxido e ajuda a solda a se espalhar. Ele é gasto em poucos segundos: por isso a solda refeita várias vezes, sem fluxo novo, fica opaca e grudenta.
+
+**O ferro.** Para placas comuns, um ferro de 30 a 60 W com controle de temperatura é o ideal. Os valores típicos de trabalho são 300 a 350 °C com solda com chumbo e 350 a 380 °C sem chumbo. A ponta precisa estar **estanhada** (coberta por uma película brilhante de solda): uma ponta preta, oxidada, não passa calor. Limpe na esponja úmida ou na palha de latão e estanhe de novo antes de guardar.
+
+## O calor é o que importa
+
+Por que a primeira solda dá errado? Porque a quantidade de solda é pequena, e a dificuldade está em aquecer o que está em volta. Veja quanta energia é preciso para derreter 3 mm de um fio de solda de 1 mm. O volume é $\pi \cdot (0{,}5\,\text{mm})^2 \times 3\,\text{mm} \approx 2{,}4\,\text{mm}^3$, e, com densidade de uns $8{,}5\,\text{g/cm}^3$, a massa é de uns 0,02 g. Aquecer de 25 °C a 183 °C e depois derreter:
+
+$$
+Q = m \cdot c \cdot \Delta T + m \cdot L = 0{,}02\,\text{g} \times 0{,}18\,\tfrac{\text{J}}{\text{g} \cdot \text{°C}} \times 158\,\text{°C} + 0{,}02\,\text{g} \times 45\,\tfrac{\text{J}}{\text{g}} \approx 1{,}5\,\text{J}
+$$
+
+onde $m$ é a massa, $c$ o calor específico da liga, $\Delta T$ quanto a temperatura sobe e $L$ o calor latente de fusão (a energia para derreter sem mudar a temperatura). Um ferro de 40 W entrega 40 J por segundo: daria para derreter essa solda em quatro centésimos de segundo.
+
+Mesmo assim, uma junta leva 2 a 3 segundos. O calor que falta vai para outro lugar: para a perna do componente, para a ilha e, principalmente, para o cobre em volta, que espalha o calor pela placa. Uma ilha ligada a um **plano de terra** (aula <LinkAula id="m14-placas/02-anatomia-da-placa" />) é ligada a uma chapa de cobre que puxa calor o tempo todo. Ela demora mais, pede uma ponta mais larga (que guarda mais calor) ou o ferro um pouco mais quente. Projetistas desenham "raios" de cobre ligando essas ilhas ao plano, em vez de uma ligação cheia, justamente para facilitar a solda.
+
+A regra prática que sai daí: **a peça quente derrete a solda, não o ferro**. Se a solda derrete na ponta e escorre por cima de uma ilha fria, ela esfria antes de molhar o cobre, e a junta fica fria.
+
+## A ordem de uma boa junta
+
+<Steps>
+<Step title="Prepare">
+Pernas limpas, encaixadas até o corpo da peça encostar na placa (ou à altura certa, para peças que esquentam). Dobre levemente as pernas para a peça não cair ao virar a placa. Ponta limpa e estanhada.
+</Step>
+<Step title="Aqueça">
+Encoste a ponta ao mesmo tempo na ilha e na perna, de modo que as duas esquentem. Conte 1 a 2 segundos.
+</Step>
+<Step title="Aplique a solda">
+Encoste o fio de solda na junta, do lado oposto à ponta, não na ponta. A solda derrete, escorre pela ilha e entra no furo. Uns 2 a 5 mm de fio bastam numa ilha comum.
+</Step>
+<Step title="Retire o fio, depois o ferro">
+Tire o fio de solda primeiro e, meio segundo depois, o ferro, deslizando-o para cima ao longo da perna. Não mexa a peça por alguns segundos.
+</Step>
+<Step title="Corte e confira">
+Corte a perna logo acima da junta com o alicate de corte rente, segurando a ponta. Olhe a junta com boa luz.
+</Step>
+</Steps>
+
+## Explore: soldar e inspecionar
+
+<EtapasSolda client:visible poster={getPoster('solder-joint')} />
+
+1. No **passo a passo**, avance as etapas. Em qual delas o fio de solda encosta na junta? De que lado da perna ele fica, em relação à ponta do ferro?
+2. Vá para a **inspeção** e compare a junta **boa** com a **fria**. Ligue o corte (o botão de cortar o modelo) nas duas: onde está a solda em cada uma?
+3. Na **ponte**, quantas ilhas a solda liga? O que isso faz no circuito?
+
+O fio entra do lado oposto à ponta, para que quem derreta a solda seja a junta quente. No corte, a junta boa tem solda dentro do furo até o outro lado; a fria fica em cima da ilha, como uma gota sobre uma superfície engordurada, e o furo fica vazio. A ponte liga duas ilhas vizinhas: um curto entre dois pontos do circuito.
+
+## Lendo uma junta
+
+<Figure
+  caption="Figura 1. Quatro juntas cortadas ao meio. Na boa, a solda forma um cone côncavo, o ângulo com a ilha é pequeno (a solda molhou o cobre) e o furo está cheio. Na fria, a solda forma uma bola com ângulo maior que 90° com a ilha, como uma gota de água sobre um vidro engordurado, e o furo está vazio. Com pouca solda, sobra cobre à mostra; com solda demais, a bola esconde o terminal."
+  alt="Quatro cortes lado a lado de uma perna de componente atravessando um furo metalizado da placa. Na junta boa, a solda sobe em forma de cone de lados côncavos e enche o furo; um arco marca o ângulo pequeno entre a solda e a ilha. Na junta fria, uma bola cinza escura fica sobre a ilha, sem encostar na borda, com um arco marcando um ângulo maior que 90 graus e o furo vazio. Na de pouca solda, um anel fino em volta da perna e o furo quase vazio. Na de solda demais, uma bola alta cobrindo a ilha e boa parte da perna."
+  wide
+>
+  <PerfisJunta />
+</Figure>
+
+O que olhar, nesta ordem:
+
+- **Brilho.** Solda com chumbo boa é brilhante e lisa; a sem chumbo é um pouco mais acetinada, mas lisa. Fosca e granulada é sinal de <Term id="solda-fria">junta fria</Term> ou de peça mexida enquanto esfriava.
+- **Forma.** Côncava, como um vulcão ou uma tenda, com o contorno da perna ainda visível. Bola é sinal de solda demais ou de ilha fria.
+- **Ângulo com a ilha.** Pequeno: a solda "molhou". Grande, com a borda da ilha aparecendo: não molhou.
+- **Vizinhas.** Nenhum fio de solda ligando a junta à vizinha. Uma <Term id="ponte-de-solda">ponte de solda</Term> é um curto-circuito.
+
+## Peças SMD
+
+Peças SMD de duas pontas (resistores e capacitores 1206 ou 0805) dão para soldar com um ferro comum de ponta fina. Estanhe uma das ilhas; segure a peça com uma pinça, reaqueça essa ilha e encoste a peça nela; com a peça presa por um lado, solde o outro com solda nova; volte e refaça o primeiro lado. Fluxo em pasta ajuda muito. Circuitos integrados SMD de muitos pinos pedem técnica de arraste com fluxo ou estação de ar quente, um passo além deste módulo.
+
+## Dessoldar
+
+Tirar uma peça é mais difícil que pôr, porque a solda precisa sair de todas as pernas ao mesmo tempo. As ferramentas:
+
+- **Sugador de solda:** uma bomba com mola. Arme, derreta a junta com o ferro, encoste o bico e dispare: ele aspira a solda líquida. Bom para furos passantes.
+- **Malha dessoldadora:** uma fita de cobre trançado com fluxo. Ponha sobre a junta, aperte com o ferro por cima, e a solda sobe pela malha por capilaridade. Corte a parte usada. Ótima para limpar ilhas e desfazer pontes.
+
+Dois truques que parecem ao contrário: **acrescentar solda fresca** numa junta velha antes de dessoldar ajuda, porque a solda nova traz fluxo e aumenta o contato com a ponta; e **cortar as pernas** de uma peça que vai para o lixo (um CI com 16 pinos, por exemplo) deixa tirar cada perna sozinha, sem forçar a placa.
+
+Nunca puxe a peça com força com a solda meio derretida: a ilha descola junto e sai do substrato. Se a perna não sai, a solda ainda não saiu do furo.
+
+<RealCase title="O anel rachado na fonte da TV">
+
+Um defeito clássico de TVs, fontes e reatores: o aparelho falha às vezes, liga depois de umas batidinhas, funciona por um tempo e desliga quando esquenta. Com uma lupa, nas pernas de peças grandes ou quentes (conectores, resistores de potência, o transformador, os reguladores), aparece um **anel fino escuro em volta da perna**, separando a perna da solda: uma junta rachada, que abre e fecha com a dilatação.
+
+O conserto é refazer a junta: tirar a solda velha com a malha ou o sugador, limpar, soldar com solda nova e fluxo. Refazer as juntas de todas as peças grandes da região resolve uma boa parte desses defeitos "fantasmas". Você vai procurar esse e outros defeitos com método no <LinkAula id="m15-diagnostico" />.
+
+</RealCase>
+
+<RealCase title="A troca do capacitor estufado">
+
+Numa fonte com um eletrolítico estufado (topo abaulado, às vezes com um resíduo marrom), a troca usa tudo desta aula. Com a fonte desligada há tempo e o capacitor medido descarregado, anote a capacitância, a tensão e a **polaridade** (fotografe a faixa de "−" e a serigrafia). Dessolde as duas pernas com o sugador, puxe o capacitor sem forçar, limpe os furos com a malha. Ponha o novo, de mesma capacitância e tensão igual ou maior, com o "−" do lado certo, e solde. Capacitor eletrolítico ao contrário esquenta e pode estourar ao ligar.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Levar a solda na ponta até a junta.** O fluxo queima no caminho e a solda cai sobre a ilha fria: junta fria. Aqueça a junta e encoste o fio nela.
+- **Ferro quente demais ou por tempo demais.** Acima do necessário, o fluxo queima antes de agir, a ilha descola e peças sensíveis se danificam. Mais de uns 5 segundos numa junta comum é sinal de que algo está errado: ponta suja, ponta pequena demais ou ilha num plano de terra.
+- **Soldar com o circuito ligado.** Desligue e, numa fonte, descarregue os capacitores grandes antes de mexer.
+- **Fumaça no rosto.** A fumaça é do fluxo, e irrita olhos e pulmões. Trabalhe em lugar ventilado, com um exaustor ou ventilador soprando a fumaça para longe.
+- **Chumbo nas mãos.** Lave as mãos depois de soldar, não coma nem beba na bancada e guarde as sobras de solda longe de crianças.
+- **Queimaduras.** O ferro fica sempre no suporte. Se ele cair, deixe cair: nunca tente pegar no ar. A ponta passa de 300 °C e o tubo de metal também queima.
+- **Respingos.** Ao cortar pernas, a ponta voa; ao sacudir o ferro, a solda espirra. Use óculos de proteção e corte com a ponta segura ou apontada para baixo.
+- **Descarga eletrostática.** Circuitos integrados e MOSFETs podem ser danificados por eletricidade estática. Encoste numa parte metálica aterrada antes de pegá-los, ou use pulseira antiestática.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'ordenar',
+      prompt: 'Ponha na ordem certa os passos de uma junta PTH.',
+      items: [
+        'Encostar a ponta na ilha e na perna ao mesmo tempo',
+        'Encostar o fio de solda na junta, do lado oposto à ponta',
+        'Retirar o fio de solda',
+        'Retirar o ferro e não mexer a peça',
+        'Cortar a perna acima da junta',
+      ],
+      explanation:
+        'Primeiro aquecer as duas partes, depois aplicar a solda nelas, retirar o fio antes do ferro (para a solda não esfriar com o fio preso) e só cortar com a junta já sólida.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Uma junta ficou fosca, granulada e em forma de bola, com a borda da ilha aparecendo. O que provavelmente aconteceu?',
+      options: [
+        {
+          text: 'A ilha ou a perna não esquentaram o suficiente, e a solda não molhou o cobre',
+          correct: true,
+          feedback:
+            'É a junta fria: a solda derreteu no ferro, mas esfriou sobre um metal frio, sem ligar. Reaqueça com fluxo novo.',
+        },
+        {
+          text: 'A solda era de boa qualidade demais',
+          feedback: 'A qualidade da solda não deixa a junta fosca. O sinal é de calor insuficiente na junta.',
+        },
+        {
+          text: 'O ferro estava estanhado',
+          feedback:
+            'A ponta estanhada é o certo: é ela que transfere calor. O problema é a junta não ter chegado à temperatura.',
+        },
+      ],
+    },
+    {
+      type: 'numerica',
+      prompt:
+        'Para derreter um pouco de solda são precisos 1,5 J. Um ferro de 30 W entrega quantos joules em 2 segundos?',
+      answer: 60,
+      tolerance: 0.01,
+      unit: 'J',
+      explanation:
+        'Energia = potência × tempo = 30 W × 2 s = 60 J. É 40 vezes a energia da solda: quase todo o calor vai para a perna, a ilha e o cobre em volta.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Por que uma ilha ligada ao plano de terra demora mais para soldar?',
+      options: [
+        {
+          text: 'Porque a chapa de cobre do plano espalha o calor da junta pela placa',
+          correct: true,
+          feedback:
+            'O cobre é ótimo condutor de calor. A junta perde calor para o plano o tempo todo e demora mais para chegar à temperatura.',
+        },
+        {
+          text: 'Porque o terra tem uma tensão que atrapalha a solda',
+          feedback: 'Com a placa desligada, não há tensão. O problema é térmico: o plano puxa calor.',
+        },
+        {
+          text: 'Porque a máscara de solda é mais grossa no plano de terra',
+          feedback: 'A ilha não tem máscara. O que pesa é a área de cobre ligada a ela, que conduz o calor embora.',
+        },
+      ],
+    },
+    {
+      type: 'associar',
+      prompt: 'Associe cada ferramenta ao que ela faz melhor.',
+      pairs: [
+        ['Sugador de solda', 'Aspira a solda derretida de um furo passante'],
+        ['Malha dessoldadora', 'Absorve a solda por capilaridade e desfaz pontes'],
+        ['Fluxo em pasta', 'Limpa o óxido e ajuda a solda a molhar o cobre'],
+        ['Alicate de corte rente', 'Corta a perna logo acima da junta'],
+      ],
+    },
+    {
+      type: 'vf',
+      prompt: 'Para tirar uma peça mais depressa, vale puxá-la com força enquanto a solda ainda está derretendo.',
+      answer: false,
+      explanation:
+        'Puxar com a solda meio presa arranca a ilha do substrato. Se a perna não sai, ainda há solda no furo: use o sugador ou a malha até soltar.',
+    },
+  ]}
+/>
+
+## Resumo
+
+- Soldar é unir metal com uma liga de baixa fusão; o **fluxo** limpa o óxido para a solda molhar o cobre. Com chumbo, a solda derrete por volta de 183 °C; sem chumbo, por volta de 217 °C. Ferro típico entre 300 e 380 °C, com a ponta estanhada.
+- **A junta quente derrete a solda, não o ferro**: aqueça ilha e perna juntas, encoste o fio na junta, retire o fio, depois o ferro.
+- Junta boa: **brilhante, côncava, ângulo pequeno**, furo cheio. Fria: fosca, em bola, ângulo grande. Atenção também a pouca solda, solda demais e **pontes**.
+- Ilhas em **planos de terra** perdem calor e demoram mais: ponta larga, um pouco mais de temperatura, paciência.
+- Para dessoldar, **sugador** e **malha**, com solda fresca para ajudar. Nunca force a peça.
+- Ventilação, mãos lavadas, ferro no suporte, óculos e circuito desligado.
+
+Na última aula do módulo, as ligações que não usam solda: bornes, conectores de alavanca, terminais e emendas de fios, em <LinkAula id="m14-placas/06-bornes-conectores-e-emendas" />.

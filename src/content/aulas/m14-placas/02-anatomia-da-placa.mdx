@@ -1,0 +1,247 @@
+---
+titulo: Anatomia de uma placa de circuito impresso
+modulo: m14-placas
+ordem: 2
+nivel: I
+duracaoMin: 30
+objetivos:
+  - Nomear as camadas de uma placa de circuito impresso e dizer para que serve cada uma
+  - Reconhecer trilhas, ilhas, furos metalizados, vias, plano de terra, máscara e serigrafia numa placa real
+  - Diferenciar componentes PTH e SMD, e o lado dos componentes do lado da solda
+  - Calcular a resistência e a queda de tensão de uma trilha de cobre
+  - Reconhecer a fenda de isolação entre a parte ligada à rede e a de baixa tensão numa fonte
+prerequisitos:
+  - m14-placas/01-simbolos-e-esquemas
+  - m01-eletricidade-do-zero/04-lei-de-ohm
+  - m04-passivos/01-resistores
+tags: [placa de circuito impresso, PCI, PCB, trilha, ilha, via, furo metalizado, máscara de solda, PTH, SMD, FR-4]
+seguranca: baixa-tensao
+rascunho: false
+---
+
+import CamadasPlaca from '../../../lessons/m14/figures/CamadasPlaca.astro';
+
+Olhe uma placa de carregador contra a luz e você vê um desenho de caminhos mais escuros por dentro da camada verde. São as trilhas de cobre, que fazem o papel dos fios. Vire a placa e aparecem os pontos prateados de solda, cada um prendendo a perna de uma peça. Entender como essa "fiação impressa" é construída ajuda a montar, a consertar e a achar defeitos que não aparecem por cima: uma trilha rachada, um furo que soltou, uma ilha que descolou.
+
+## Fios desenhados no cobre
+
+Uma <Term id="placa-de-circuito-impresso">placa de circuito impresso</Term> (PCI, ou PCB em inglês) é uma chapa isolante coberta de cobre, em que o cobre que não interessa foi removido. O que sobra forma os caminhos do circuito. É um jeito de fazer, em série e sem erro, a fiação de centenas de peças.
+
+A chapa isolante (o substrato) mais comum é o **FR-4**: fibra de vidro tecida e colada com resina epóxi, de cor esverdeada ou creme. Ela é rígida, aguenta o calor da solda e não absorve umidade. Placas baratas (controles remotos, brinquedos, algumas fontes) usam **fenolite**, um papelão prensado com resina, marrom, que escurece com o calor e racha com mais facilidade. A espessura padrão é de 1,6 mm.
+
+Sobre o substrato vai o cobre, uma folha fina: o mais comum tem 35 µm (0,035 mm), chamado de "1 onça" porque pesa uma onça por pé quadrado. Uma placa pode ter cobre:
+
+- **Numa face só** (face simples): as trilhas ficam todas do lado de baixo, e as peças, do lado de cima. É a placa mais barata.
+- **Nas duas faces** (dupla face): trilhas dos dois lados, ligadas por furos metalizados. É a placa temporizadora deste módulo.
+- **Em várias camadas** (multicamadas): 4, 6 ou mais camadas de cobre, as do meio escondidas dentro do substrato. Celulares, computadores e placas com processadores rápidos são assim.
+
+<Figure
+  caption="Figura 1. Corte de uma placa dupla face, com as espessuras exageradas para dar para ver. O núcleo de FR-4 tem cobre dos dois lados; a máscara de solda cobre tudo, menos as ilhas onde vai solda. O resistor PTH atravessa a placa por dois furos metalizados e é soldado embaixo; o resistor SMD fica sobre duas ilhas do lado de cima; a via liga as duas faces sem nenhuma peça."
+  alt="Corte transversal de uma placa: núcleo creme de fibra de vidro, finas camadas de cobre em cima e embaixo, máscara verde por cima do cobre com aberturas nas ilhas e uma marca branca de serigrafia. À esquerda, um resistor bege com faixas coloridas, com as pernas atravessando dois furos de paredes de cobre cheios de solda, e a solda em forma de cone no lado de baixo. No meio, uma via, um furo estreito de paredes de cobre coberto pela máscara. À direita, um resistor SMD preto sobre duas ilhas do lado de cima, com solda nas pontas."
+  wide
+>
+  <CamadasPlaca />
+</Figure>
+
+## Os elementos de uma placa
+
+**Trilha.** Uma <Term id="trilha">trilha</Term> é uma faixa de cobre que liga dois ou mais pontos: o fio da placa. A largura depende da corrente: trilhas de sinal têm 0,2 a 0,5 mm; as de alimentação e as dos contatos de um relé, 1 a 3 mm ou mais.
+
+**Ilha.** A <Term id="ilha">ilha</Term> (*pad*) é a área de cobre exposta onde a perna de uma peça é soldada. Pode ser redonda, oval ou quadrada; a quadrada costuma marcar o pino 1 de um circuito integrado ou o positivo de um capacitor.
+
+**Furo metalizado.** Num <Term id="furo-metalizado">furo metalizado</Term>, a parede do furo recebe uma camada de cobre, que liga a ilha de cima à de baixo. A solda boa sobe por dentro dele. Peças com pernas que atravessam a placa são chamadas de **PTH** (*plated through-hole*, furo metalizado passante).
+
+**Via.** Uma <Term id="via">via</Term> é um furo metalizado pequeno, sem peça, só para a trilha passar de uma face para a outra. Costuma ficar coberta pela máscara.
+
+**Plano de terra.** Áreas grandes de cobre ligadas ao GND, em vez de trilhas finas. Ele dá um caminho de volta curto para todas as correntes, espalha o calor e reduz o ruído. Na placa temporizadora, o lado de baixo inteiro é um plano de terra.
+
+**Máscara de solda.** A <Term id="mascara-de-solda">máscara de solda</Term> é a tinta (verde, azul, preta, vermelha) que cobre o cobre todo, menos as ilhas. Ela protege as trilhas da oxidação e impede que a solda escorra de uma ilha para a trilha vizinha e faça uma ponte.
+
+**Acabamento.** As ilhas expostas recebem uma camada que facilita a solda: estanhada (HASL, prateada e um pouco irregular) ou dourada (ENIG, lisa e amarela). Cobre nu oxida e solda mal.
+
+**Serigrafia.** A <Term id="serigrafia">serigrafia</Term> é a tinta branca com os designadores, os contornos e a polaridade, que você conheceu na aula anterior.
+
+## PTH e SMD
+
+Há duas famílias de peças, e quase toda placa moderna mistura as duas:
+
+| | PTH (furo passante) | <Term id="smd">SMD</Term> (montagem em superfície) |
+|---|---|---|
+| Como prende | Pernas atravessam furos e são soldadas do outro lado | Terminais soldados sobre ilhas do mesmo lado da peça |
+| Tamanho | Grande: resistor de 1/4 W com 6 mm de corpo | Pequeno: resistor 0805 com 2,0 × 1,25 mm |
+| Onde aparece | Conectores, relés, capacitores grandes, peças que esquentam ou levam esforço | Quase todo o resto, montado por máquina |
+| Para consertar | Fácil com ferro comum | Pede ponta fina, fluxo e paciência; os menores pedem ar quente |
+
+Numa placa com peças PTH há um **lado dos componentes** e um **lado da solda**. Numa placa só de SMD, as peças podem estar nas duas faces.
+
+## Quanto resiste uma trilha
+
+Uma trilha é um condutor como outro qualquer, e tem resistência. Ela é pequena, mas importa quando a corrente é grande ou a trilha é longa e fina. A resistência de um condutor depende do material, do comprimento e da área da seção:
+
+$$
+R = \rho \cdot \frac{L}{A} = \rho \cdot \frac{L}{w \cdot t}
+$$
+
+onde $\rho$ é a resistividade do cobre ($1{,}72 \times 10^{-8}\,\Omega \cdot \text{m}$ a 20 °C), $L$ é o comprimento da trilha, e a seção $A$ é a largura $w$ vezes a espessura $t$ do cobre (aula <LinkAula id="m04-passivos/01-resistores" />).
+
+### Exemplo resolvido: a trilha do relé
+
+Na placa temporizadora, o contato NA do relé vai ao borne J2 por uma trilha de cobre de 35 µm, com 2 mm de largura e uns 25 mm de comprimento. A carga puxa 5 A. Quanto essa trilha resiste, quanto de tensão ela "rouba" da carga e quanto esquenta?
+
+A seção é $A = w \cdot t = 2 \times 10^{-3}\,\text{m} \times 35 \times 10^{-6}\,\text{m} = 7 \times 10^{-8}\,\text{m}^2$. A resistência:
+
+$$
+R = 1{,}72 \times 10^{-8} \times \frac{0{,}025}{7 \times 10^{-8}} \approx 0{,}006\,\Omega = 6\,\text{m}\Omega
+$$
+
+Com 5 A, a queda é $V = R \cdot I = 0{,}006 \times 5 = 0{,}03\,\text{V}$, e a potência é $P = R \cdot I^2 = 0{,}006 \times 25 = 0{,}15\,\text{W}$. Pouco, espalhado em 25 mm de cobre: a trilha fica morna.
+
+Agora imagine a mesma corrente numa trilha de sinal de 0,25 mm. A resistência fica 8 vezes maior, uns 49 mΩ, e a potência, $0{,}049 \times 25 \approx 1{,}2\,\text{W}$, concentrada numa faixa estreita. A trilha esquenta, a máscara escurece e o cobre pode descolar ou se romper como um fusível. É por isso que trilhas de potência são largas, e que uma trilha queimada é sinal de que passou corrente demais por ali. Projetistas usam tabelas (como as da norma IPC-2221) para escolher a largura de cada trilha.
+
+## Explore: as camadas da placa temporizadora
+
+<Model3D part="relay-timer-board" props={{ labels: false }} explode />
+
+1. A placa está separada em camadas. De cima para baixo, quais são elas? (Ligue as **anotações** para ver os nomes.)
+2. Junte a placa (botão da vista explodida). Ache as trilhas largas que saem do relé para o borne J2, e compare com as finas que vão ao 555.
+3. Olhe as quatro esquinas da placa. Para que servem os furos grandes, que não têm ilha de cobre?
+
+<Model3D part="relay-timer-board" props={{ flip: true, labels: false }} />
+
+4. Esta é a mesma placa virada, do lado da solda. Ache o plano de terra (a área grande de cobre sob a máscara) e os pontos de solda. Por que alguns pontos estão "ilhados" no meio do plano, com um anel sem cobre em volta?
+
+Os furos das esquinas são de fixação: parafusos ou espaçadores prendem a placa na caixa, e o furo não tem cobre porque não faz parte de nenhum circuito. No lado de baixo, as ilhas ligadas ao GND tocam o plano de terra; as dos outros sinais ficam separadas dele por um anel isolante, para não entrar em curto com o terra.
+
+<RealCase title="A fenda da fonte de celular">
+
+Abra (desligada da tomada há tempo) a placa de um carregador de celular e procure uma **fenda** cortada na placa, ou uma faixa larga sem nenhuma trilha, atravessando-a de lado a lado. De um lado está tudo que liga à rede de 127 V ou 220 V: o fusível, a ponte retificadora, o capacitor grande, o transistor de chaveamento. Do outro, a saída de 5 V e o conector USB.
+
+Só duas coisas cruzam essa fronteira: o transformador e, quase sempre, um optoacoplador (aula <LinkAula id="m09-semicondutores/09-tiristores-e-isolamento" />). A fenda existe porque a corrente pode "andar" pela superfície da placa quando há poeira e umidade; cortar a placa aumenta essa distância e garante a isolação. Um carregador sem essa separação, comum em produtos falsificados, pode pôr a tensão da rede no cabo USB.
+
+</RealCase>
+
+<RealCase title="A placa de fenolite rachada">
+
+Ventiladores, controles de portão antigos e fontes baratas usam placas de fenolite de face simples, com as peças grandes (relés, transformadores) presas só pela solda. Com as quedas e a vibração, a placa racha perto da peça pesada, e a trilha racha junto. O defeito é intermitente: o aparelho funciona, para, funciona de novo quando alguém bate nele.
+
+Com uma lupa e a placa contra a luz, a rachadura aparece como uma linha fina atravessando a trilha. O conserto é raspar a máscara dos dois lados da rachadura e soldar um pedaço de fio por cima, como uma ponte. Você vai ver esse e outros defeitos na aula <LinkAula id="m15-diagnostico/03-defeitos-comuns" />.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Mexer na placa de uma fonte ligada à rede.** O lado primário tem a tensão da rede e capacitores que guardam carga depois de desligados. Só abra com o aparelho fora da tomada, espere alguns minutos e meça a tensão do capacitor grande antes de tocar.
+- **Raspar a máscara à toa.** Sem ela, o cobre oxida e a solda escorre para onde não devia. Raspe só onde vai soldar um reparo.
+- **Aquecer demais uma ilha.** O calor excessivo descola o cobre do substrato, e a ilha sai junto com a peça. Na fenolite isso acontece mais rápido.
+- **Fazer passar mais corrente por uma placa do que ela foi feita para levar.** Pôr um relé de 10 A não faz a trilha aguentar 10 A. A trilha e o borne também precisam.
+- **Esquecer as camadas de dentro.** Numa placa multicamadas, furar ou raspar pode cortar uma trilha que você não vê.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'associar',
+      prompt: 'Associe cada parte da placa ao que ela faz.',
+      pairs: [
+        ['Trilha', 'Liga dois pontos do circuito, como um fio'],
+        ['Ilha', 'Área de cobre exposta onde a perna da peça é soldada'],
+        ['Via', 'Furo pequeno que leva a trilha de uma face para a outra'],
+        ['Máscara de solda', 'Tinta que protege o cobre e evita pontes de solda'],
+        ['Serigrafia', 'Tinta com os designadores e a polaridade'],
+      ],
+    },
+    {
+      type: 'multipla',
+      prompt: 'Qual é a diferença entre uma peça PTH e uma SMD?',
+      options: [
+        {
+          text: 'A PTH tem pernas que atravessam furos e são soldadas do outro lado; a SMD é soldada sobre ilhas do mesmo lado',
+          correct: true,
+          feedback:
+            'PTH vem de furo metalizado passante. A SMD fica na superfície, e por isso pode ser muito menor.',
+        },
+        {
+          text: 'A PTH é sempre maior porque aguenta mais tensão',
+          feedback:
+            'O tamanho vem do jeito de montar, não da tensão. Existem peças SMD de alta tensão e PTH de sinal.',
+        },
+        {
+          text: 'A SMD não precisa de solda',
+          feedback: 'Precisa sim: ela é soldada sobre as ilhas, geralmente por máquina, com pasta de solda.',
+        },
+      ],
+    },
+    {
+      type: 'numerica',
+      prompt:
+        'Uma trilha de cobre tem resistência de 50 mΩ e leva 2 A. Quanta potência ela dissipa, em watts?',
+      answer: 0.2,
+      tolerance: 0.02,
+      unit: 'W',
+      explanation: 'P = R × I² = 0,05 Ω × (2 A)² = 0,05 × 4 = 0,2 W.',
+    },
+    {
+      type: 'multipla',
+      prompt:
+        'Uma trilha de 1 mm de largura é trocada por uma de 0,25 mm, com o mesmo cobre e o mesmo comprimento. O que acontece com a resistência?',
+      options: [
+        {
+          text: 'Fica 4 vezes maior',
+          correct: true,
+          feedback: 'A resistência é inversa à seção. Com um quarto da largura, a seção é um quarto, e R é 4 vezes maior.',
+        },
+        {
+          text: 'Fica 4 vezes menor',
+          feedback:
+            'Trilha mais fina tem menos cobre para a corrente passar: a resistência aumenta, não diminui.',
+        },
+        {
+          text: 'Não muda, porque o comprimento é o mesmo',
+          feedback:
+            'O comprimento é só um dos fatores. A seção (largura × espessura) também entra, no denominador.',
+        },
+      ],
+    },
+    {
+      type: 'vf',
+      prompt:
+        'A fenda cortada numa placa de carregador de celular serve para aumentar a distância entre a parte ligada à rede e a saída de baixa tensão.',
+      answer: true,
+      explanation:
+        'A corrente pode escoar pela superfície da placa com poeira e umidade. A fenda aumenta essa distância e garante a isolação entre a rede e a saída USB.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Para que serve o plano de terra no lado de baixo da placa temporizadora?',
+      options: [
+        {
+          text: 'Dá um caminho de volta curto para todas as correntes, espalha calor e reduz ruído',
+          correct: true,
+          feedback:
+            'Em vez de trilhas finas para o GND, a face inteira é GND. As ilhas de outros sinais ficam isoladas dele por um anel sem cobre.',
+        },
+        {
+          text: 'Liga a placa à haste de aterramento da casa',
+          feedback:
+            'O "terra" da placa é o negativo do circuito, o GND. Ele não tem relação com o aterramento da instalação.',
+        },
+        {
+          text: 'É só um reforço mecânico',
+          feedback:
+            'O cobre é fino demais para reforçar a placa. O plano é elétrico: ele é o nó GND inteiro.',
+        },
+      ],
+    },
+  ]}
+/>
+
+## Resumo
+
+- A **placa de circuito impresso** é um substrato isolante (FR-4 ou fenolite) com cobre gravado formando os caminhos. Pode ter cobre numa face, nas duas ou em várias camadas.
+- **Trilhas** ligam pontos; **ilhas** recebem a solda; **furos metalizados** e **vias** ligam as faces; o **plano de terra** é o GND em área; a **máscara** protege o cobre e evita pontes; a **serigrafia** diz o que é cada peça.
+- Peças **PTH** atravessam a placa; peças **SMD** ficam sobre ilhas da superfície. Quase toda placa mistura as duas.
+- A trilha tem resistência $R = \rho L / (w \cdot t)$: trilhas de potência são largas, e uma trilha estreita com corrente alta esquenta e pode se romper.
+- Em fontes ligadas à rede, uma **fenda** ou faixa sem cobre separa o lado da rede do lado de baixa tensão. Só o transformador e o optoacoplador atravessam.
+
+Na próxima aula você vai reconhecer cada peça da placa pela aparência, pela marcação e pelo designador: <LinkAula id="m14-placas/03-identificando-componentes" />.
