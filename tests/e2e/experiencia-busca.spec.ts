@@ -23,7 +23,10 @@ test.describe('search', () => {
     await page.getByRole('radio', { name: 'Glossário' }).click();
     await expect(results.getByRole('link', { name: /Tensão elétrica/ })).toBeVisible();
 
-    await input.fill('xyzwq');
+    // Pagefind falls back to the longest indexed prefix of a word it does not
+    // know ("xyzwq" finds "x"), so only a word whose first letter appears in
+    // no indexed word is sure to find nothing.
+    await input.fill('ŋŋŋŋ');
     await expect(status).toContainText('Nada encontrado');
     errors.expectClean();
   });
