@@ -1,0 +1,249 @@
+---
+titulo: Símbolos e leitura de esquemas
+modulo: m14-placas
+ordem: 1
+nivel: I
+duracaoMin: 30
+objetivos:
+  - Reconhecer os símbolos dos componentes mais comuns num esquema elétrico
+  - Ler designadores de referência (R3, C2, U1, K1) e achar a mesma peça na placa
+  - Diferenciar um cruzamento de fios de uma junção, e entender redes, nomes de rede e o terra
+  - Ler valores escritos no código de letra no lugar da vírgula (4k7, 100n, 2R2)
+  - Seguir um caminho de corrente num esquema, da entrada de alimentação até a carga
+prerequisitos:
+  - m02-circuitos-cc/01-o-circuito-eletrico
+  - m04-passivos/07-chaves-botoes-e-reles
+  - m09-semicondutores/06-transistor-como-chave
+tags: [esquema, símbolos, designador, serigrafia, lista de materiais, rede, terra, placa]
+seguranca: baixa-tensao
+rascunho: false
+---
+
+import { getPoster } from '../../../three/catalog';
+import EsquemaPlaca from '../../../lessons/m14/EsquemaPlaca.tsx';
+import TabelaSimbolos from '../../../lessons/m14/TabelaSimbolos.tsx';
+
+Você abre a tampa de uma central de portão, de um carregador ou de um módulo comprado pela internet e acha uma placa cheia de peças pequenas, cada uma com uma letra e um número impressos ao lado: R3, C2, U1, K1. No manual, ou colado na tampa, vem um desenho cheio de riscos e símbolos. Esse desenho é o mapa da placa. Quem sabe lê-lo descobre o que cada peça faz, por onde a corrente passa e onde procurar quando algo para de funcionar.
+
+Este módulo usa uma placa só do começo ao fim: um **temporizador de 12 V com relé**, parecido com os módulos vendidos para automação. Um botão dispara o tempo, um circuito integrado conta, e um relé liga uma carga por alguns segundos. Nesta aula você aprende a ler o esquema dela; nas próximas, a abrir, reconhecer, configurar e soldar a mesma placa.
+
+## O esquema mostra ligações, não lugares
+
+Um <Term id="esquema-eletrico">esquema elétrico</Term> desenha cada componente com um símbolo e cada ligação com uma linha. Ele não diz onde a peça fica na placa, de que tamanho ela é nem que cor tem. Dois resistores lado a lado no esquema podem estar em cantos opostos da placa, e um fio comprido no desenho pode ser uma trilha de 2 mm.
+
+Essa separação é proposital. O esquema é feito para **entender o circuito**: as entradas ficam à esquerda, as saídas à direita, a alimentação positiva em cima e o terra embaixo, e a corrente "desce" pelo desenho. A placa é feita para **caber e funcionar**: as peças ficam onde as trilhas ficam curtas, onde o calor sai e onde o conector encaixa na caixa.
+
+O que liga os dois mundos é o <Term id="designador-de-referencia">designador de referência</Term>: a letra que diz o tipo de peça e o número que a diferencia das outras do mesmo tipo. O R3 do esquema é o R3 impresso na placa, na <Term id="serigrafia">serigrafia</Term> (a tinta branca sobre a placa), e é a linha R3 da <Term id="lista-de-materiais">lista de materiais</Term>, a tabela que diz o valor de cada peça.
+
+## Os símbolos
+
+Cada tipo de componente tem um símbolo. Há duas famílias de desenho: a europeia (IEC), mais usada no Brasil e nos manuais de equipamentos, e a americana (ANSI), comum em livros e em projetos da internet. A diferença mais visível é o resistor: um retângulo na IEC e um zigue-zague na ANSI. Os dois dizem a mesma coisa.
+
+<Figure
+  caption="Figura 1. Os símbolos das peças da placa temporizadora, com as letras usadas nos designadores. Um mesmo tipo de peça pode aparecer com letras diferentes de um fabricante para outro: o trimpot pode ser RV, VR ou TR; o transistor, Q ou T."
+  alt="Grade com dezesseis símbolos e o nome de cada um: resistor (R), trimpot (RV), capacitor cerâmico (C), capacitor eletrolítico (C, com sinal de mais), diodo (D), LED (com duas setas saindo), transistor NPN (Q), circuito integrado (U), relé (K, bobina e contato ligados por tracejado), fusível (F), botão (S), chave DIP (SW), jumper (JP), borne (J), conector de pinos (CN) e buzzer (BZ)."
+  wide
+>
+  <TabelaSimbolos />
+</Figure>
+
+Alguns detalhes que mudam o sentido do símbolo:
+
+- **Polaridade.** O capacitor eletrolítico tem um lado positivo, marcado com $+$ ou com a placa reta (a curva é o negativo). O diodo aponta do anodo para o catodo, e a barra do símbolo é a faixa pintada no corpo da peça. O LED é um diodo com setas de luz saindo.
+- **A seta do transistor.** No emissor de um NPN, a seta aponta para fora; num PNP, para dentro. É o sentido da corrente convencional (aula <LinkAula id="m09-semicondutores/06-transistor-como-chave" />).
+- **O relé em duas partes.** A bobina e os contatos costumam aparecer separados, às vezes longe um do outro no desenho, com o mesmo designador K1. A linha tracejada, quando aparece, diz que a bobina move aquele contato.
+- **Contatos desenhados em repouso.** Chaves, botões e relés aparecem sempre na posição de repouso, sem ninguém apertar e sem a bobina energizada. O contato NA aparece aberto; o NF, fechado (aula <LinkAula id="m04-passivos/07-chaves-botoes-e-reles" />).
+
+## Linhas, junções e redes
+
+Cada linha do esquema é uma ligação sem resistência. Todos os pontos ligados entre si por linhas formam um <Term id="no-de-circuito">nó</Term>, que nos programas de projeto se chama **rede** (*net*). Duas regras evitam a confusão mais comum:
+
+- **Ponto cheio é junção.** Onde três ou mais linhas se encontram com uma bolinha, elas estão ligadas.
+- **Cruzamento sem ponto não é ligação.** Duas linhas que se cruzam sem a bolinha passam uma por cima da outra, como dois fios isolados. Desenhos cuidadosos evitam até isso, deslocando um dos cruzamentos para virar um "T".
+
+Esquemas grandes ficariam ilegíveis se todo fio fosse desenhado até o fim. Por isso existem os **nomes de rede**: um rótulo como `+12V` ou `DISP` escrito em vários lugares diz que todos esses pontos estão ligados, mesmo sem uma linha entre eles. O terra é o caso mais comum: o símbolo de terra (as três barras ou o triângulo) em dez lugares do desenho é um nó só, o negativo da alimentação, que nesta placa se chama `GND`.
+
+<Callout type="atencao">
+O símbolo de terra num esquema de eletrônica quase sempre quer dizer o **negativo do circuito** (o 0 V de referência), e não a haste de aterramento da casa. O condutor de proteção, verde-amarelo, tem um símbolo próprio e só aparece em equipamentos ligados à rede.
+</Callout>
+
+## Os valores escritos com letra
+
+A serigrafia e a lista de materiais economizam espaço, e uma vírgula pequena some fácil numa cópia ruim. Por isso os valores costumam ser escritos com a **letra do prefixo no lugar da vírgula**:
+
+| Escrito | Quer dizer | Escrito | Quer dizer |
+|---|---|---|---|
+| 4k7 | 4,7 kΩ | 100n | 100 nF |
+| 1k | 1 kΩ | 4n7 | 4,7 nF |
+| 2R2 | 2,2 Ω | 10µ/25V | 10 µF para até 25 V |
+| 1M5 | 1,5 MΩ | 470µ | 470 µF |
+
+Nos resistores, a letra R faz o papel da vírgula quando não há prefixo: 2R2 é 2,2 Ω e 0R1 é 0,1 Ω. Em todos os casos, a letra multiplica o número pelo prefixo SI (aula <LinkAula id="m01-eletricidade-do-zero/06-unidades-e-ordens-de-grandeza" />):
+
+$$
+4\text{k}7 = 4{,}7 \times 10^{3}\,\Omega = 4.700\,\Omega \qquad 100\text{n} = 100 \times 10^{-9}\,\text{F} = 0{,}1\,\mu\text{F}
+$$
+
+Capacitores trazem duas informações: a capacitância e a **tensão máxima**, que também vem escrita (10 µF/25 V). Trocar por um de tensão menor é um defeito plantado.
+
+## Explore: o esquema da placa temporizadora
+
+A simulação mostra o esquema completo da placa. À esquerda está a rede de tempo (R3, o trimpot RV1 e o capacitor C2); no meio, o CI 555 (U1), que conta o tempo; à direita, a saída (R4, o transistor Q1 e o relé K1 com o diodo D2). A lâmpada de 12 V no canto é a carga que o relé liga pelos contatos.
+
+<Simulation circuit="m14/temporizador-jumper" instruments={['multimetro']} />
+
+1. Ache no desenho o botão **S1** e siga a linha até o pino de disparo do 555 (marcado TRIG). Por qual peça a ligação passa no caminho? (Dica: ela tem três pontas.)
+2. Ache o resistor **R2**. Uma ponta vai ao `+12V`, a outra ao botão. O que acontece com a tensão no pino de disparo quando o botão está solto? E apertado?
+3. Aperte o play e segure o botão **DISPARO** por um instante. Quanto tempo a carga fica acesa?
+4. Ache o diodo **D2**. Em paralelo com o quê ele está ligado?
+
+O caminho do botão passa pelo jumper JP1, que você vai configurar na aula <LinkAula id="m14-placas/04-jumpers-e-dip-switches" />. Com o botão solto, R2 segura o pino de disparo em 12 V (um <Term id="pull-up">pull-up</Term>); apertado, o botão liga o pino ao terra, e o 555 dispara. A carga fica acesa por cerca de 1,1 s. E o D2 está em paralelo com a bobina do relé: é o <Term id="diodo-de-roda-livre">diodo de roda livre</Term>, que absorve o pico de tensão quando a bobina desliga.
+
+## Explore: do esquema à placa
+
+Agora a mesma placa de verdade, em 3D. Escolha um designador para ver onde a peça está e qual símbolo ela tem no esquema.
+
+<EsquemaPlaca client:visible poster={getPoster('relay-timer-board')} />
+
+1. Escolha **U1** e depois **C4**. No esquema, C4 fica colado no 555; e na placa?
+2. Escolha **D2** e **K1**. O diodo de roda livre fica perto do relé também na placa. Por que o projetista faria isso?
+3. Escolha **F1** e **D1**. Eles estão logo depois do borne de entrada J1. Que caminho a corrente faz entre J1 e o resto da placa?
+4. Ache uma peça que aparece **duas vezes** no esquema com o mesmo designador.
+
+Na placa, C4 também fica ao lado do 555: capacitores de filtro só funcionam perto do pino que filtram. D2 fica junto do relé porque o pico da bobina deve ser absorvido ali mesmo, sem correr pela placa. A corrente de entrada passa por J1, pelo fusível F1 e pelo diodo D1, que só conduz se a fonte estiver ligada do jeito certo. E a peça que aparece duas vezes é o relé: a bobina K1 e os contatos K1, ou a chave DIP, com as chaves SW1-1 e SW1-2 desenhadas em lugares diferentes.
+
+## Exemplo resolvido: quanto passa pelo LED do relé
+
+No esquema, o LED LD2 e o resistor R5 ficam entre o `+12V` e o coletor de Q1, em paralelo com a bobina do relé. Quando o 555 liga a saída, Q1 satura e o coletor vai a uns 0,1 V. Quanto de corrente passa pelo LED? A lista de materiais diz: R5 = 1k; LD2 = LED vermelho de 3 mm.
+
+Primeiro, os valores: "1k" é $1\,\text{k}\Omega = 1.000\,\Omega$. Um LED vermelho de 3 mm tem tensão direta típica de uns 2 V (aula <LinkAula id="m09-semicondutores/04-leds" />). O LED e R5 estão em série entre 12 V e 0,1 V, então R5 fica com o que sobra:
+
+$$
+V_{R5} = 12\,\text{V} - 2\,\text{V} - 0{,}1\,\text{V} = 9{,}9\,\text{V}
+$$
+
+$$
+I = \frac{V_{R5}}{R5} = \frac{9{,}9\,\text{V}}{1.000\,\Omega} \approx 9{,}9\,\text{mA}
+$$
+
+Cerca de 10 mA: o LED acende bem, abaixo do máximo típico de 20 mA desse tamanho de LED. Na simulação, com a carga acesa, clique no LD2 para conferir a corrente: ela fica perto disso. A bobina do relé, de 400 Ω, puxa $12 / 400 = 30\,\text{mA}$ pelo mesmo transistor; Q1 conduz os dois juntos, uns 40 mA.
+
+<RealCase title="O esquema na tampa da central do portão">
+
+Muitas centrais de portão trazem, colado na tampa ou no manual, um desenho dos bornes com o nome de cada um: F e N, COM, ABRE e FECHA, FC (fim de curso), FOTO. Não é o esquema completo, mas usa as mesmas convenções: os contatos aparecem em repouso, e o símbolo de terra é o negativo da placa, não o terra da casa. Quem lê "FC ABRE — NF" entende que o fim de curso de abertura é um contato fechado em repouso, que abre quando o portão chega ao fim (aula <LinkAula id="m16-portao/04-fim-de-curso-e-sensores" />).
+
+Na placa da central, os designadores ajudam no conserto. Um técnico que suspeita do relé de abrir procura "K1" ou "RL1" na serigrafia ao lado do relé, e não precisa adivinhar qual dos dois relés iguais é o do motor.
+
+</RealCase>
+
+<RealCase title="O manual de serviço de uma fonte">
+
+Equipamentos maiores (TVs, fontes de computador, inversores) têm um **manual de serviço**, com o esquema dividido em blocos e os designadores numerados por área: R101 a R199 na fonte, R201 a R299 no amplificador, e assim por diante. O técnico usa o número para ir direto à região da placa.
+
+Nesses esquemas aparecem também as **tensões de teste**: um "12V" ou "5,1V" escrito ao lado de um ponto diz quanto o multímetro deve marcar ali com o aparelho ligado. É assim que se acha um defeito sem testar peça por peça, o método do <LinkAula id="m15-diagnostico" />.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Tratar um cruzamento como junção.** Sem a bolinha, os fios não estão ligados. Na dúvida, procure o mesmo nó em outro ponto do desenho.
+- **Achar que a posição no esquema é a posição na placa.** Use o designador, não a geometria do desenho, para achar a peça.
+- **Ler 4k7 como 47 kΩ.** A letra está no lugar da vírgula: 4k7 é 4,7 kΩ, dez vezes menos. Na hora de trocar uma peça, um erro desses muda o circuito inteiro.
+- **Ignorar a tensão do capacitor.** "10µ/25V" pede um capacitor de 25 V ou mais. Um de 16 V pode estufar ou estourar.
+- **Confundir o terra do circuito com o terra da casa.** Numa fonte ligada à rede, o lado de baixa tensão e o lado da rede têm "terras" diferentes; medir entre eles sem saber onde está a isolação é perigoso. Placas ligadas à rede têm regras próprias, que você vê na aula <LinkAula id="m14-placas/02-anatomia-da-placa" />.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'multipla',
+      prompt: 'No esquema, duas linhas se cruzam e não há bolinha no cruzamento. O que isso quer dizer?',
+      options: [
+        {
+          text: 'As linhas não estão ligadas: uma passa por cima da outra',
+          correct: true,
+          feedback:
+            'Só há ligação onde existe o ponto cheio. Um cruzamento sem ponto é como dois fios isolados que se cruzam.',
+        },
+        {
+          text: 'As linhas estão ligadas, e a bolinha foi esquecida',
+          feedback:
+            'Num esquema bem feito, a bolinha nunca é opcional. Sem ela, os fios não se tocam.',
+        },
+        {
+          text: 'Existe um componente escondido no cruzamento',
+          feedback:
+            'Todo componente tem um símbolo. Um cruzamento de linhas é só um cruzamento.',
+        },
+      ],
+    },
+    {
+      type: 'associar',
+      prompt: 'Associe cada designador ao tipo de peça.',
+      pairs: [
+        ['R3', 'Resistor'],
+        ['K1', 'Relé'],
+        ['U1', 'Circuito integrado'],
+        ['Q1', 'Transistor'],
+        ['JP1', 'Jumper'],
+      ],
+    },
+    {
+      type: 'numerica',
+      prompt: 'Na lista de materiais, um resistor aparece como "4k7". Qual é a resistência, em ohms?',
+      answer: 4700,
+      tolerance: 0.01,
+      unit: 'Ω',
+      explanation: 'A letra k está no lugar da vírgula e vale mil: 4k7 = 4,7 kΩ = 4.700 Ω.',
+    },
+    {
+      type: 'numerica',
+      prompt:
+        'Um LED vermelho (tensão direta de 2 V) e um resistor de 1k estão em série entre 12 V e um transistor saturado (0,1 V). Qual é a corrente no LED, em miliampères?',
+      answer: 9.9,
+      tolerance: 0.05,
+      unit: 'mA',
+      explanation: 'O resistor fica com 12 − 2 − 0,1 = 9,9 V. I = 9,9 V ÷ 1.000 Ω ≈ 9,9 mA.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'O relé K1 aparece em dois lugares do esquema: a bobina perto do transistor e os contatos perto da saída. Isso está certo?',
+      options: [
+        {
+          text: 'Sim: é a mesma peça, e o designador igual liga as duas partes',
+          correct: true,
+          feedback:
+            'Bobina e contatos de um relé (ou as chaves de uma DIP) podem ficar longe no desenho. O designador diz que são da mesma peça.',
+        },
+        {
+          text: 'Não: são dois relés, e um deles está com o designador errado',
+          feedback:
+            'Se fossem dois relés, seriam K1 e K2. O mesmo designador em dois lugares é a mesma peça dividida.',
+        },
+        {
+          text: 'Não: a bobina e os contatos têm sempre de ficar juntos',
+          feedback:
+            'Juntos fica mais fácil de ver, mas não é obrigatório. Em esquemas grandes, os contatos ficam perto do que eles ligam.',
+        },
+      ],
+    },
+    {
+      type: 'vf',
+      prompt: 'O símbolo de terra num esquema de uma placa de 12 V indica o ponto ligado à haste de aterramento da casa.',
+      answer: false,
+      explanation:
+        'Num esquema de eletrônica, o símbolo de terra é o 0 V de referência do circuito, o negativo da alimentação (GND). O condutor de proteção tem símbolo próprio.',
+    },
+  ]}
+/>
+
+## Resumo
+
+- O **esquema** mostra as ligações; a **placa** mostra os lugares. O **designador** (R3, C2, U1, K1) é o mesmo no esquema, na serigrafia e na lista de materiais.
+- Cada peça tem um **símbolo**. Atenção à polaridade (capacitor eletrolítico, diodo, LED) e aos contatos, sempre desenhados em repouso.
+- **Ponto cheio é junção; cruzamento sem ponto não liga.** Nomes de rede iguais (`+12V`, `GND`) ligam pontos sem linha desenhada.
+- Valores com a **letra no lugar da vírgula**: 4k7 = 4,7 kΩ, 2R2 = 2,2 Ω, 100n = 100 nF. Capacitores trazem também a tensão máxima.
+- Para entender um circuito, siga a corrente: da entrada de alimentação, pela proteção, até a carga e de volta ao terra.
+
+Na próxima aula, você abre a placa por dentro: as camadas de cobre, as trilhas, os furos metalizados e a diferença entre peças PTH e SMD, em <LinkAula id="m14-placas/02-anatomia-da-placa" />.

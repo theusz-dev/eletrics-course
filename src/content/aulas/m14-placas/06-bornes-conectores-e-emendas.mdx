@@ -1,0 +1,325 @@
+---
+titulo: Bornes, conectores e emendas
+modulo: m14-placas
+ordem: 6
+nivel: I
+duracaoMin: 35
+objetivos:
+  - Explicar por que uma ligação frouxa esquenta, com a conta P = I² × R
+  - Prender um fio num borne de parafuso e num borne de mola do jeito certo
+  - Usar o conector de alavanca, conferindo o comprimento desencapado e a corrente máxima
+  - Escolher o terminal de crimpar (ilhós, olhal, forquilha, pino, luva) pela bitola e pelo borne
+  - Fazer e isolar as emendas de prolongamento, rabo de rato e derivação
+prerequisitos:
+  - m14-placas/03-identificando-componentes
+  - m00-comece-aqui/03-ferramentas-essenciais
+  - m01-eletricidade-do-zero/05-potencia-e-energia
+tags: [borne, conector de alavanca, terminal, ilhós, ponteira, olhal, emenda, rabo de rato, fita isolante, mau contato]
+seguranca: rede
+rascunho: false
+---
+
+import { getPoster } from '../../../three/catalog';
+import MauContato from '../../../lessons/m14/MauContato.tsx';
+
+O chuveiro funcionou por anos. Um dia a água sai morna, e logo depois o disjuntor não desarma, mas o cheiro de plástico queimado aparece no banheiro. Ao abrir a caixa, a emenda do chuveiro está preta, a fita isolante derreteu e o cobre ficou azulado. Nem o fio nem o disjuntor estavam errados: o defeito estava num ponto de poucos milímetros, onde dois fios se encostavam sem apertar. Esta aula é sobre esses pontos: bornes, conectores, terminais e emendas.
+
+## Por que uma ligação frouxa esquenta
+
+Todo contato entre dois metais tem uma <Term id="resistencia-de-contato">resistência de contato</Term>. Numa ligação bem feita, ela fica em torno de 1 mΩ, porque os metais se tocam numa área grande e com pressão. Numa ligação frouxa, os metais se tocam só em alguns pontinhos, e a resistência sobe para dezenas ou centenas de miliohms.
+
+Parece pouco, mas a corrente que passa por ali é a do aparelho inteiro, e o calor cresce com o quadrado dela (<Term id="efeito-joule">efeito Joule</Term>):
+
+$$
+P = I^2 \cdot R
+$$
+
+onde $P$ é a potência que vira calor no contato, em watts, $I$ a corrente em ampères e $R$ a resistência de contato em ohms. Para um chuveiro de 5.500 W em 220 V, a corrente é $I = 5.500\,\text{W} / 220\,\text{V} = 25\,\text{A}$. Com uma emenda boa, de 1 mΩ:
+
+$$
+P = (25\,\text{A})^2 \times 0{,}001\,\Omega \approx 0{,}63\,\text{W}
+$$
+
+Com uma emenda frouxa, de 50 mΩ:
+
+$$
+P = (25\,\text{A})^2 \times 0{,}05\,\Omega \approx 31\,\text{W}
+$$
+
+São 31 W concentrados num volume menor que uma unha, embrulhado em fita isolante, dentro de uma caixa fechada: o calor de um ferro de solda. E o problema piora sozinho. O calor oxida o cobre, o óxido conduz mal, a resistência sobe, o calor aumenta. Esse ciclo leva semanas ou meses, até a isolação derreter ou pegar fogo.
+
+O disjuntor não ajuda aqui. Para ele, a corrente continua a mesma 25 A de sempre: quem esquenta é o contato, não o fio inteiro. Por isso, uma ligação bem feita é proteção, tanto quanto o disjuntor.
+
+## Explore: o calor de um mau contato
+
+<MauContato client:visible />
+
+1. Escolha o **chuveiro** e suba a resistência de contato até o calor passar de 15 W. Qual é a resistência?
+2. Com a mesma resistência, troque para a **fita de LED de 12 V**. Quanto calor sobra? Por que a mesma emenda ruim é muito mais perigosa no chuveiro?
+3. No **aquecedor**, qual é a maior resistência de contato que ainda fica abaixo de 1 W?
+
+No chuveiro, 15 W aparecem já com uns 20 a 50 mΩ, uma emenda "um pouco frouxa". A fita de LED puxa 5 A, cinco vezes menos corrente, e por isso dissipa 25 vezes menos calor com o mesmo contato. É por isso que aparelhos de corrente alta (chuveiro, torneira elétrica, aquecedor, ar-condicionado, forno) são os que mais queimam tomadas e emendas.
+
+## Borne de parafuso
+
+O <Term id="borne">borne</Term> de parafuso é o conector mais comum em placas e quadros. Dentro dele, uma gaiola de metal sobe quando o parafuso é apertado e prende o fio contra uma barra ligada ao circuito. Explore o borne abaixo: ligue o corte para ver a gaiola e as anotações para ver as partes.
+
+<Model3D
+  part="screw-terminal"
+  props={{ ways: 3, wires: 2, screwTurnsEach: '0,0,1', wireColors: 'azul,vermelho' }}
+  cutaway
+  caption="Borne de parafuso de placa com três vias: duas com fio preso e a terceira com a gaiola aberta. No corte, o fio fica entre a gaiola e a barra."
+/>
+
+O jeito certo de prender um fio:
+
+<Steps>
+<Step title="Desligue e confira">
+Na placa, desligue a alimentação. Na instalação, desligue o disjuntor e teste a ausência de tensão antes de encostar na ligação.
+</Step>
+<Step title="Desencape a medida certa">
+Use o desencapador, não o alicate de corte ou a faca, para não marcar o cobre. A medida vem na folha de dados ou gravada no borne; nos bornes de placa, fica entre 5 e 7 mm. O cobre deve entrar todo, sem sobrar fora, e a isolação deve encostar na entrada.
+</Step>
+<Step title="Prepare o fio flexível">
+Fio flexível (de muitos fios finos) leva <Term id="ponteira">ponteira</Term> crimpada. Sem ela, alguns fios escapam da gaiola e podem tocar o borne vizinho.
+</Step>
+<Step title="Abra, encaixe e aperte">
+Solte o parafuso até a gaiola abrir, encaixe o fio até o fundo e aperte com a chave do tamanho certo. Firme, sem espanar: o borne vem com o torque indicado na folha de dados.
+</Step>
+<Step title="Puxe">
+Puxe o fio com uma força moderada. Se ele sair ou se mexer, refaça.
+</Step>
+</Steps>
+
+<Callout type="atencao" title="Não estanhe a ponta do fio para o borne de parafuso">
+Estanhar a ponta de um fio flexível parece uma boa ideia, mas a solda escoa devagar sob a pressão do parafuso. Semanas depois, o borne está frouxo, mesmo sem ninguém ter mexido. Use ponteira crimpada; a solda serve para placas, não para pontas que vão para um parafuso.
+</Callout>
+
+Bornes de **mola** (com um botão ou um furo para empurrar com a chave de fenda) funcionam do mesmo jeito, mas a pressão vem de uma mola de aço, que não afrouxa com a vibração. Por isso eles são comuns em quadros de comando, centrais de portão e máquinas.
+
+## Conector de alavanca
+
+O <Term id="conector-de-alavanca">conector de alavanca</Term> emenda dois a cinco fios sem fita e sem ferramenta. Cada via tem uma mola de aço que aperta o fio contra uma barra de cobre estanhado comum a todas as vias: todos os fios do conector ficam ligados entre si.
+
+<Model3D
+  part="lever-connector"
+  props={{ ways: 3, wires: 2, open: false }}
+  cutaway
+  caption="Conector de alavanca de três vias, com dois fios presos e a terceira via livre. No corte, a mola aperta o cobre contra a barra comum."
+/>
+
+1. Ligue as anotações. Onde fica a fenda de teste, e para que serve?
+2. Ligue o corte. Em que ponto a mola encosta no fio?
+
+<Model3D
+  part="lever-connector"
+  props={{ ways: 3, wires: 2, open: true, strip: 'curto' }}
+  cutaway
+  caption="O mesmo conector com a alavanca aberta e um fio desencapado curto demais: a mola aperta a isolação, não o cobre."
+/>
+
+3. Agora compare com o fio desencapado curto. O que a mola aperta? O que acontece com a corrente?
+
+A fenda serve para encostar a ponta de prova do multímetro sem abrir a emenda. A mola aperta o fio perto da ponta, sobre o cobre. Com o fio curto, ela aperta a isolação de PVC, e o cobre só encosta na barra pela ponta, num ponto pequeno: a resistência de contato sobe, e o conector esquenta como uma emenda frouxa.
+
+Três cuidados com o conector de alavanca:
+
+- **Comprimento desencapado:** é o gravado no corpo, em geral 11 mm. O corpo transparente mostra se o cobre chegou até o fim.
+- **Corrente e bitola:** cada modelo diz a corrente máxima e as bitolas aceitas (por exemplo, 0,2 a 4 mm², 32 A). A corrente do aparelho tem de ficar abaixo, com folga.
+- **Um fio por via:** dois fios enfiados na mesma via não ficam presos pela mola.
+
+## Terminais de crimpar
+
+Um terminal de crimpar é uma peça de cobre estanhado que se prensa na ponta do fio com um **alicate crimpador**, a ferramenta própria. A prensagem deforma o tubo do terminal em volta do cobre, tão apertado que os dois quase viram uma peça só: o contato fica com resistência baixa e não afrouxa.
+
+<Model3D
+  part="crimp-terminal"
+  props={{ type: 'ilhos', section: 1.5, crimped: true }}
+  cutaway
+  caption="Ponteira (ilhós) crimpada num fio flexível de 1,5 mm². O colarinho vermelho indica a bitola."
+/>
+
+| Terminal | Para que serve | Onde aparece |
+|----------|----------------|--------------|
+| Ponteira (ilhós) | Junta os fios finos de um cabo flexível numa ponta firme, para o borne | Bornes de placa, disjuntores, contatores |
+| Olhal | O parafuso passa pelo furo: o fio não escapa mesmo se o parafuso afrouxar | Barramento de terra, bateria, motor |
+| Forquilha | Entra sob o parafuso só afrouxando, sem tirá-lo | Réguas de bornes, painéis |
+| Pino | Ponta rígida para bornes de mola ou bornes pequenos | Centrais, comandos |
+| Luva | Emenda dois fios de topo, cada um crimpado de um lado | Emenda de cabo de motor, automotivo |
+
+<Model3D
+  part="crimp-terminal"
+  props={{ type: 'olhal', section: 2.5, crimped: true, color: 'azul' }}
+  caption="Terminal olhal pré-isolado azul num fio de 2,5 mm². A cor da capa diz a faixa de bitola."
+/>
+
+Os terminais pré-isolados usam um código de cores para a faixa de bitola: **vermelho** para 0,5 a 1,5 mm², **azul** para 1,5 a 2,5 mm² e **amarelo** para 4 a 6 mm². O alicate crimpador tem as mesmas cores nas bocas. Terminal grande demais para o fio fica frouxo; pequeno demais, o cobre não entra todo. E prensar com alicate comum amassa o terminal sem apertá-lo: é o mesmo mau contato com uma aparência de serviço feito.
+
+## Emendas de fio
+
+Na instalação de casa, a emenda pode ser feita torcendo o fio rígido. Ela só fica boa se as voltas forem **juntas e apertadas**, para o cobre se tocar numa área grande, e se depois for isolada direito. Hoje, para quase todos os casos, o conector de alavanca é mais simples e mais seguro; mesmo assim, é importante saber fazer e reconhecer uma emenda torcida, porque você vai encontrar muitas.
+
+<Model3D
+  part="wire-splice"
+  props={{ type: 'prolongamento', section: 2.5, quality: 'firme' }}
+  caption="Emenda de prolongamento em fio rígido de 2,5 mm²: cada ponta dá voltas juntas e apertadas sobre o outro fio."
+/>
+
+- **Prolongamento:** emenda dois fios em linha, para estender. Cruze as pontas descascadas e enrole cada uma sobre o outro fio, com 5 ou 6 voltas juntas.
+- **Rabo de rato:** junta dois ou três fios que chegam do mesmo lado, torcidos juntos. É a emenda das caixas de passagem e de interruptores, e a que mais aparece frouxa.
+- **Derivação:** tira um fio novo do meio de outro, sem cortá-lo. Descasque um trecho do fio principal e enrole o fio da derivação sobre ele.
+
+<Model3D
+  part="wire-splice"
+  props={{ type: 'rabo-de-rato', section: 1.5, quality: 'frouxa' }}
+  caption="Rabo de rato frouxo: poucas voltas, separadas. O cobre só se toca em alguns pontos."
+/>
+
+**Isolar.** Estique a fita isolante enquanto enrola, sobrepondo cada volta em metade da largura, e comece e termine sobre a isolação do fio, de um lado e do outro. Duas ou três camadas. Use fita antichama de boa qualidade; a fita barata perde a cola com o calor e desenrola.
+
+<Model3D
+  part="wire-splice"
+  props={{ type: 'derivacao', section: 2.5, quality: 'firme', tape: true }}
+  caption="Derivação firme, já isolada com fita em meia sobreposição, passando da isolação dos dois lados."
+/>
+
+**Onde a emenda pode ficar.** Pela NBR 5410, a norma de instalações elétricas de baixa tensão, emendas e conexões ficam dentro de caixas (de passagem, de tomada, de interruptor ou o próprio quadro), acessíveis para inspeção. Nunca dentro do eletroduto, nunca soltas no forro ou enterradas na parede. Emenda que ninguém consegue ver é emenda que ninguém consegue consertar.
+
+## Na placa: fio direto, conector ou borne
+
+Numa placa eletrônica, as ligações com o mundo de fora quase nunca são soldadas direto: um fio soldado na placa quebra na raiz com a vibração e não se troca sem ferro. Por isso a placa traz conectores:
+
+- **Bornes de parafuso ou de mola** para a alimentação e as cargas, como os J1 e J2 da placa do temporizador (aula <LinkAula id="m14-placas/03-identificando-componentes" />).
+- **Conectores de encaixe** (de duas a dezenas de vias, com trava) para sensores, painéis e cabos internos: saem com um puxão, sem ferramenta, e só entram de um jeito.
+- **Barras de pinos** para jumpers e para ligar placas entre si.
+
+Ao trocar uma placa, fotografe cada borne com os fios antes de soltar, e etiquete os fios. A serigrafia ao lado de cada borne diz a função; o manual diz a bitola e o comprimento desencapado.
+
+<RealCase title="O chuveiro com a emenda queimada">
+
+O caso do começo da aula, como costuma acontecer: um chuveiro de 5.500 W em 220 V, ligado por uma emenda torcida e isolada com fita, dentro da caixa atrás da parede. Meses depois, a água começa a sair morna de vez em quando, e há um cheiro de plástico.
+
+Com o disjuntor do chuveiro desligado e sinalizado e a ausência de tensão testada, a caixa mostra a emenda escurecida, com a fita derretida e o cobre oxidado. O trecho de fio que esquentou já está duro e quebradiço. O conserto não é dar mais fita: corte o fio de volta até o cobre limpo e brilhante; se não sobrar fio para trabalhar, refaça o trecho de fiação. Ligue o chuveiro com um conector de corrente adequada (conector de alavanca ou borne para pelo menos 32 A, com folga sobre os 25 A do chuveiro) ou com o borne do próprio chuveiro, na bitola e com o disjuntor que o manual pede. Confira o disjuntor e o DR. Se a fiação do circuito não tiver a bitola certa, ou se você não tiver segurança, chame um eletricista habilitado.
+
+</RealCase>
+
+<RealCase title="O fio flexível sem ponteira na central do portão">
+
+Uma central de portão para de vez em quando: às vezes o motor não fecha, às vezes a fotocélula "fica cega". O técnico anterior trocou a central e ligou os fios flexíveis do motor e da fotocélula direto nos bornes, sem ponteira.
+
+Com a central desligada, olhando os bornes com a lanterna, dois problemas aparecem: em um borne, metade dos fios finos ficou fora da gaiola e um deles quase encosta no borne vizinho; em outro, o fio está preso pela isolação. O conserto é cortar a ponta, desencapar de novo na medida do borne, crimpar uma ponteira e apertar de novo. Fios soltos entre bornes vizinhos causam curtos e defeitos intermitentes, os mais difíceis de achar. O roteiro para encontrar esse tipo de defeito vem no <LinkAula id="m15-diagnostico" />, e a troca da central passo a passo, em <LinkAula id="m16-portao/07-trocar-motor-e-central" />.
+
+</RealCase>
+
+## Erros comuns e segurança
+
+- **Mexer em emenda com o circuito ligado.** Desligue o disjuntor, sinalize, teste a ausência de tensão com um detector que você acabou de testar numa tomada energizada.
+- **Desencapar com faca ou alicate de corte.** O cobre fica marcado e quebra ali depois de algumas dobras. Use o desencapador na bitola certa.
+- **Desencapar demais.** O cobre fica exposto fora do borne ou do conector: risco de choque e de curto com o vizinho.
+- **Desencapar de menos.** A mola ou o parafuso apertam a isolação: mau contato que esquenta.
+- **Fio flexível sem ponteira.** Fios finos escapam da gaiola. Use ponteira crimpada.
+- **Alicate comum no lugar do crimpador.** O terminal fica amassado e frouxo.
+- **Emenda frouxa com muita fita.** A fita esconde, não conserta. Refaça a emenda ou troque por um conector.
+- **Conector subdimensionado.** Confira a corrente máxima gravada e a bitola aceita; aparelhos de corrente alta pedem conectores e bornes à altura.
+- **Emenda dentro do eletroduto ou da parede.** Toda emenda fica numa caixa acessível.
+- **Mais de um fio no mesmo furo** de borne ou conector que não foi feito para isso.
+
+## Exercícios
+
+<Quiz
+  questions={[
+    {
+      type: 'numerica',
+      prompt:
+        'Uma tomada alimenta um aquecedor que puxa 10 A, e o contato do plugue tem 0,1 Ω de resistência. Quanto calor esse contato produz, em watts?',
+      answer: 10,
+      tolerance: 0.01,
+      unit: 'W',
+      explanation:
+        'P = I² × R = (10 A)² × 0,1 Ω = 100 × 0,1 = 10 W. É o calor de uma lâmpada LED inteira concentrado no contato da tomada, que derrete o plástico com o tempo.',
+    },
+    {
+      type: 'multipla',
+      prompt:
+        'Uma emenda frouxa de chuveiro esquentou até derreter a fita, mas o disjuntor nunca desarmou. Por quê?',
+      options: [
+        {
+          text: 'Porque a corrente do circuito continuou a mesma; quem esquentou foi só o contato',
+          correct: true,
+          feedback:
+            'O disjuntor mede a corrente, não o calor de um ponto. A emenda frouxa transforma em calor uma parte da energia, sem aumentar a corrente.',
+        },
+        {
+          text: 'Porque o disjuntor estava com defeito',
+          feedback:
+            'Pode até estar, mas não é preciso: com a corrente normal, um disjuntor bom também não desarma. O calor está concentrado na emenda.',
+        },
+        {
+          text: 'Porque a emenda frouxa diminui a resistência do circuito',
+          feedback: 'É o contrário: a emenda frouxa aumenta a resistência naquele ponto, e é isso que esquenta.',
+        },
+      ],
+    },
+    {
+      type: 'vf',
+      prompt:
+        'Estanhar com solda a ponta de um fio flexível é a melhor forma de prepará-lo para um borne de parafuso.',
+      answer: false,
+      explanation:
+        'A solda escoa devagar sob a pressão do parafuso, e a ligação afrouxa com o tempo. O certo é crimpar uma ponteira (ilhós).',
+    },
+    {
+      type: 'associar',
+      prompt: 'Associe cada terminal ao seu uso.',
+      pairs: [
+        ['Ponteira (ilhós)', 'Ponta firme de fio flexível para borne'],
+        ['Olhal', 'Fio que não escapa mesmo com o parafuso frouxo'],
+        ['Forquilha', 'Encaixe sob o parafuso sem tirá-lo'],
+        ['Luva', 'Emenda de topo entre dois fios'],
+      ],
+    },
+    {
+      type: 'ordenar',
+      prompt: 'Ponha na ordem certa a ligação de um fio num conector de alavanca, numa caixa de tomada.',
+      items: [
+        'Desligar o disjuntor e testar a ausência de tensão',
+        'Desencapar o fio no comprimento gravado no conector',
+        'Levantar a alavanca e encaixar o fio até o fundo',
+        'Baixar a alavanca',
+        'Puxar o fio e conferir pelo corpo transparente se o cobre chegou ao fim',
+      ],
+      explanation:
+        'Primeiro a segurança, depois o preparo do fio na medida certa, o encaixe, o travamento e a conferência.',
+    },
+    {
+      type: 'multipla',
+      prompt: 'Qual terminal pré-isolado serve para um fio de 2,5 mm²?',
+      options: [
+        {
+          text: 'O azul',
+          correct: true,
+          feedback: 'Azul é para 1,5 a 2,5 mm². Vermelho vai até 1,5 mm², e amarelo é para 4 a 6 mm².',
+        },
+        {
+          text: 'O vermelho',
+          feedback: 'O vermelho vai de 0,5 a 1,5 mm²: o fio de 2,5 mm² não entra todo no tubo.',
+        },
+        {
+          text: 'O amarelo',
+          feedback: 'O amarelo é para 4 a 6 mm²: num fio de 2,5 mm², ele fica frouxo mesmo depois de crimpado.',
+        },
+      ],
+    },
+  ]}
+/>
+
+## Resumo
+
+- Todo contato tem resistência. Com a corrente alta de um chuveiro, poucos miliohms a mais viram dezenas de watts: **P = I² × R**. O disjuntor não vê esse calor.
+- **Borne de parafuso:** desencapar na medida, cobre todo dentro, apertar firme e puxar para conferir. Fio flexível leva **ponteira**, não solda.
+- **Conector de alavanca:** comprimento gravado no corpo, um fio por via, corrente e bitola dentro do que o modelo aceita.
+- **Terminais de crimpar** com o crimpador, na cor da bitola: vermelho até 1,5 mm², azul até 2,5 mm², amarelo de 4 a 6 mm².
+- **Emendas torcidas** com voltas juntas e apertadas, isoladas com fita em meia sobreposição, sempre dentro de uma caixa acessível.
+- Circuito desligado e ausência de tensão testada antes de mexer em qualquer ligação.
+
+Com isso termina o módulo de placas: você sabe ler um esquema, achar cada peça, configurar, soldar e ligar uma placa. No próximo módulo, <LinkAula id="m15-diagnostico" />, você vai usar tudo isso para encontrar defeitos com método.

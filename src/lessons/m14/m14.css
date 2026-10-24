@@ -1,0 +1,208 @@
+/* Module 14: symbols, the board map and the widgets around the timer board. */
+
+.sym {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sym .sym__mark {
+  fill: currentColor;
+  stroke: none;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.simbolos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.simbolos li {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.simbolos .sym {
+  width: 4.5rem;
+  height: auto;
+  color: var(--fg);
+}
+
+.simbolos strong {
+  display: block;
+  font-size: 0.9375rem;
+}
+
+.simbolos .num {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+/* Board map (2D top view of the timer board). */
+.placa-mapa {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  background: #123f7a;
+  touch-action: manipulation;
+}
+
+.placa-mapa__board {
+  fill: #164a8c;
+  stroke: #0d2f5c;
+  stroke-width: 0.4;
+}
+
+.placa-mapa__trace {
+  fill: none;
+  stroke: #2a63ad;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.placa-mapa__pad {
+  fill: #c9ccd0;
+}
+
+.placa-mapa__part {
+  cursor: pointer;
+}
+
+.placa-mapa__part rect {
+  fill: rgb(255 255 255 / 0.06);
+  stroke: #f4f4ef;
+  stroke-width: 0.35;
+}
+
+.placa-mapa__part text {
+  fill: #f4f4ef;
+  font-family: var(--font-sans);
+  font-size: 2.6px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.placa-mapa__part:hover rect {
+  fill: rgb(255 255 255 / 0.18);
+}
+
+.placa-mapa__part[data-on] rect {
+  fill: rgb(255 196 0 / 0.35);
+  stroke: #ffc400;
+  stroke-width: 0.7;
+}
+
+.placa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.placa-chips .lw__choice {
+  min-height: 2.25rem;
+  padding: 0.3rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.placa-ficha {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.placa-ficha .sym {
+  width: 5.5rem;
+  height: auto;
+  color: var(--fg);
+}
+
+.placa-ficha__ref {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.placa-dupla {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 52rem) {
+  .placa-dupla {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.placa-3d .m3d {
+  margin: 0;
+}
+
+.jogo-placa__placar {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.jogo-placa__feedback[data-ok] {
+  color: var(--success, #1d7a3a);
+}
+
+.jogo-placa__feedback[data-erro] {
+  color: var(--danger, #b42318);
+}
+
+.jumper-dip__estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+}
+
+.jumper-dip__lampada {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.jumper-dip__lampada::before {
+  content: '';
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.jumper-dip__lampada[data-on]::before {
+  border-color: #c2410c;
+  background: #f97316;
+  box-shadow: 0 0 0.6rem #f97316;
+}
+
+.jumper-dip__desenho {
+  width: 9rem;
+  height: auto;
+  color: var(--fg-muted);
+}

@@ -1,0 +1,137 @@
+---
+/*
+ * 14.5: the profile of four through-hole joints, cut through the middle:
+ * good (concave, wetting angle well under 90°, the hole filled), cold (a
+ * ball sitting on the pad, angle over 90°, the hole empty), too little
+ * solder and too much. The angle where the solder meets the pad is the
+ * first thing to look at.
+ */
+const PANELS = [
+  { key: 'boa', title: 'Boa', note: 'côncava, ângulo pequeno, furo cheio' },
+  { key: 'fria', title: 'Fria', note: 'bola fosca, ângulo maior que 90°, furo vazio' },
+  { key: 'pouca', title: 'Pouca solda', note: 'ilha descoberta, furo vazio' },
+  { key: 'excesso', title: 'Solda demais', note: 'bola alta, esconde o terminal, furo cheio' },
+] as const;
+
+const W = 160;
+const BOARD_Y = 120;
+const BOARD_H = 40;
+const PAD = 34;
+const HOLE = 9;
+const LEAD = 4;
+
+/** Solder outline above the board for each joint (panel coordinates, centre x = 80). */
+const SHAPES: Record<(typeof PANELS)[number]['key'], string> = {
+  boa: `M ${80 - PAD} ${BOARD_Y} Q ${80 - LEAD - 4} ${BOARD_Y - 4} ${80 - LEAD} ${BOARD_Y - 40} L ${80 + LEAD} ${BOARD_Y - 40} Q ${80 + LEAD + 4} ${BOARD_Y - 4} ${80 + PAD} ${BOARD_Y} Z`,
+  fria: `M ${80 - 22} ${BOARD_Y} C ${80 - 34} ${BOARD_Y - 10} ${80 - 30} ${BOARD_Y - 44} ${80 - LEAD} ${BOARD_Y - 46} L ${80 + LEAD} ${BOARD_Y - 46} C ${80 + 30} ${BOARD_Y - 44} ${80 + 34} ${BOARD_Y - 10} ${80 + 22} ${BOARD_Y} Z`,
+  pouca: `M ${80 - 18} ${BOARD_Y} Q ${80 - LEAD - 1} ${BOARD_Y - 2} ${80 - LEAD} ${BOARD_Y - 12} L ${80 + LEAD} ${BOARD_Y - 12} Q ${80 + LEAD + 1} ${BOARD_Y - 2} ${80 + 18} ${BOARD_Y} Z`,
+  excesso: `M ${80 - PAD} ${BOARD_Y} C ${80 - PAD - 14} ${BOARD_Y - 30} ${80 - 26} ${BOARD_Y - 76} ${80 - LEAD} ${BOARD_Y - 78} L ${80 + LEAD} ${BOARD_Y - 78} C ${80 + 26} ${BOARD_Y - 76} ${80 + PAD + 14} ${BOARD_Y - 30} ${80 + PAD} ${BOARD_Y} Z`,
+};
+const FILL: Record<(typeof PANELS)[number]['key'], number> = {
+  boa: 1,
+  fria: 0,
+  pouca: 0.25,
+  excesso: 1,
+};
+---
+
+<svg
+  viewBox={`0 0 ${W * 4 + 30} 248`}
+  width={W * 4 + 30}
+  height="248"
+  class="fig"
+  aria-hidden="true"
+>
+  {PANELS.map((p, i) => (
+    <g transform={`translate(${10 + i * (W + 4)} 0)`}>
+      <text x="80" y="20" class="title">
+        {p.title}
+      </text>
+      <rect x="6" y={BOARD_Y} width={W - 12} height={BOARD_H} class="core" />
+      <rect x={80 - PAD} y={BOARD_Y - 3} width={PAD * 2} height="3" class="cu" />
+      <rect x={80 - PAD} y={BOARD_Y + BOARD_H} width={PAD * 2} height="3" class="cu" />
+      <rect x={80 - HOLE} y={BOARD_Y} width={HOLE * 2} height={BOARD_H} class="drill" />
+      <rect x={80 - HOLE} y={BOARD_Y} width="2.5" height={BOARD_H} class="cu" />
+      <rect x={80 + HOLE - 2.5} y={BOARD_Y} width="2.5" height={BOARD_H} class="cu" />
+      {FILL[p.key] > 0 && (
+        <rect
+          x={80 - HOLE + 2.5}
+          y={BOARD_Y}
+          width={HOLE * 2 - 5}
+          height={BOARD_H * FILL[p.key]}
+          class="solder"
+        />
+      )}
+      <rect
+        x={80 - LEAD}
+        y={BOARD_Y - (p.key === 'excesso' ? 92 : 62)}
+        width={LEAD * 2}
+        height={(p.key === 'excesso' ? 92 : 62) + BOARD_H + 20}
+        class="lead"
+      />
+      <path d={SHAPES[p.key]} class={`solder ${p.key === 'fria' ? 'dull' : ''}`} />
+      {p.key === 'boa' && (
+        <path
+          d={`M ${80 + PAD - 18} ${BOARD_Y} A 18 18 0 0 0 ${80 + PAD - 15.5} ${BOARD_Y - 8}`}
+          class="angle"
+        />
+      )}
+      {p.key === 'fria' && (
+        <path
+          d={`M ${80 + 22 - 16} ${BOARD_Y} A 16 16 0 0 1 ${80 + 22 + 3} ${BOARD_Y - 16}`}
+          class="angle"
+        />
+      )}
+      {p.note.split(', ').map((line, j) => (
+        <text x="80" y={206 + j * 16} class="note">
+          {line}
+        </text>
+      ))}
+    </g>
+  ))}
+</svg>
+
+<style>
+  .fig {
+    font-family: var(--font-sans);
+    max-width: 100%;
+    height: auto;
+  }
+  .core {
+    fill: #c9b878;
+  }
+  .cu {
+    fill: var(--copper);
+  }
+  .drill {
+    fill: var(--surface);
+  }
+  .lead {
+    fill: #9aa0a6;
+  }
+  .solder {
+    fill: #d3d6d9;
+    stroke: #8e949a;
+    stroke-width: 1.2;
+  }
+  .solder.dull {
+    fill: #9da1a4;
+  }
+  .angle {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
+  text {
+    fill: var(--fg);
+    text-anchor: middle;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .note {
+    font-size: 12px;
+    fill: var(--fg-muted);
+  }
+</style>

@@ -1,0 +1,276 @@
+---
+/*
+ * 14.2: cross-section of a double-sided board, thicknesses exaggerated: the
+ * FR-4 core, copper on both sides, solder mask and silkscreen; a
+ * through-hole (PTH) resistor with its leads in plated holes and the solder
+ * on the bottom, a via, and a surface-mount (SMD) resistor soldered on two
+ * pads of the top side.
+ */
+const CORE = { y: 150, h: 56 };
+const CU = 6;
+const MASK = 5;
+const TOP = CORE.y - CU;
+const BOT = CORE.y + CORE.h + CU;
+const HOLES = [110, 200];
+const VIA = 330;
+const HOLE_R = 9;
+const VIA_R = 5;
+/** Copper on the top side (x ranges): pads of the PTH part, via ring, SMD pads and a trace. */
+const TOP_CU: [number, number][] = [
+  [90, 130],
+  [180, 220],
+  [220, 316],
+  [316, 344],
+  [344, 470],
+  [470, 500],
+  [560, 590],
+];
+const BOT_CU: [number, number][] = [
+  [86, 134],
+  [176, 224],
+  [316, 344],
+  [344, 600],
+];
+/** Mask openings (top: PTH pads and SMD pads; bottom: PTH pads). */
+const TOP_OPEN: [number, number][] = [
+  [88, 132],
+  [178, 222],
+  [468, 502],
+  [558, 592],
+];
+const BOT_OPEN: [number, number][] = [
+  [84, 136],
+  [174, 226],
+];
+const L = 40;
+const R = 640;
+
+/** Segments of [L, R] not covered by the openings. */
+function maskSpans(open: [number, number][]): [number, number][] {
+  const out: [number, number][] = [];
+  let x = L;
+  for (const [a, b] of open) {
+    if (a > x) out.push([x, a]);
+    x = b;
+  }
+  if (x < R) out.push([x, R]);
+  return out;
+}
+const fibres = Array.from({ length: 9 }, (_, i) => CORE.y + 6 + i * 6);
+---
+
+<svg viewBox="0 0 680 330" width="680" height="330" class="fig" aria-hidden="true">
+  <!-- Core with glass fibres. -->
+  <rect x={L} y={CORE.y} width={R - L} height={CORE.h} class="core" />
+  {fibres.map((y) => (
+    <line x1={L + 4} y1={y} x2={R - 4} y2={y} class="fibre" />
+  ))}
+
+  <!-- Copper. -->
+  {TOP_CU.map(([a, b]) => (
+    <rect x={a} y={TOP} width={b - a} height={CU} class="cu" />
+  ))}
+  {BOT_CU.map(([a, b]) => (
+    <rect x={a} y={CORE.y + CORE.h} width={b - a} height={CU} class="cu" />
+  ))}
+
+  <!-- Solder mask, with openings on the pads. -->
+  {maskSpans(TOP_OPEN).map(([a, b]) => (
+    <rect x={a} y={TOP - MASK} width={b - a} height={MASK} class="mask" />
+  ))}
+  {maskSpans(BOT_OPEN).map(([a, b]) => (
+    <rect x={a} y={BOT} width={b - a} height={MASK} class="mask" />
+  ))}
+
+  <!-- Silkscreen. -->
+  <rect x="140" y={TOP - MASK - 4} width="30" height="4" class="silk" />
+  <text x="155" y={TOP - MASK - 8} class="tiny">
+    R1
+  </text>
+
+  <!-- Plated holes and via: drill, then the copper barrel. -->
+  {HOLES.map((x) => (
+    <g>
+      <rect x={x - HOLE_R} y={TOP} width={HOLE_R * 2} height={BOT - TOP} class="drill" />
+      <rect x={x - HOLE_R} y={TOP} width="3" height={BOT - TOP} class="cu" />
+      <rect x={x + HOLE_R - 3} y={TOP} width="3" height={BOT - TOP} class="cu" />
+      <rect x={x - HOLE_R + 3} y={TOP} width={HOLE_R * 2 - 6} height={BOT - TOP} class="solder" />
+    </g>
+  ))}
+  <rect x={VIA - VIA_R} y={TOP} width={VIA_R * 2} height={BOT - TOP} class="drill" />
+  <rect x={VIA - VIA_R} y={TOP} width="2.5" height={BOT - TOP} class="cu" />
+  <rect x={VIA + VIA_R - 2.5} y={TOP} width="2.5" height={BOT - TOP} class="cu" />
+  <rect x={VIA - VIA_R - 6} y={TOP - MASK} width={VIA_R * 2 + 12} height={MASK} class="mask" />
+  <rect x={VIA - VIA_R - 6} y={BOT} width={VIA_R * 2 + 12} height={MASK} class="mask" />
+
+  <!-- PTH resistor: body above, leads through the holes, fillets below. -->
+  <path
+    d={`M ${HOLES[0]} ${BOT + 16} L ${HOLES[0]} 92 Q ${HOLES[0]} 80 122 80 L 188 80 Q ${HOLES[1]} 80 ${HOLES[1]} 92 L ${HOLES[1]} ${BOT + 16}`}
+    class="lead"
+  />
+  <rect x="122" y="66" width="66" height="28" rx="12" class="body" />
+  {[134, 146, 158, 174].map((x, i) => (
+    <rect x={x} y="66" width="6" height="28" class={`band b${i}`} />
+  ))}
+  {HOLES.map((x) => (
+    <path
+      d={`M ${x - 22} ${BOT} Q ${x - 6} ${BOT + 2} ${x - 4} ${BOT + 14} L ${x + 4} ${BOT + 14} Q ${x + 6} ${BOT + 2} ${x + 22} ${BOT} Z`}
+      class="solder"
+    />
+  ))}
+
+  <!-- SMD resistor on two pads. -->
+  <rect x="490" y={TOP - 18} width="80" height="18" rx="2" class="smd" />
+  <rect x="490" y={TOP - 18} width="12" height="18" class="smd-end" />
+  <rect x="558" y={TOP - 18} width="12" height="18" class="smd-end" />
+  <path d={`M 470 ${TOP} Q 474 ${TOP - 4} 490 ${TOP - 15} L 490 ${TOP} Z`} class="solder" />
+  <path d={`M 590 ${TOP} Q 586 ${TOP - 4} 570 ${TOP - 15} L 570 ${TOP} Z`} class="solder" />
+  <text x="530" y={TOP - 6} class="tiny light">
+    103
+  </text>
+
+  <!-- Labels. -->
+  <g class="labels">
+    <text x="155" y="40" class="title">
+      Componente PTH
+    </text>
+    <text x="530" y="86" class="title">
+      Componente SMD
+    </text>
+    <line x1="530" y1="92" x2="530" y2={TOP - 20} class="leader" />
+
+    <line x1="250" y1={TOP - 3} x2="262" y2="104" class="leader" />
+    <text x="266" y="100" class="lbl">
+      Máscara de solda
+    </text>
+    <line x1="160" y1={TOP - 8} x2="230" y2="120" class="leader" />
+    <text x="234" y="124" class="lbl">
+      Serigrafia
+    </text>
+    <line x1="420" y1={TOP + 3} x2="420" y2="118" class="leader" />
+    <text x="420" y="112" class="lbl mid">
+      Trilha de cobre
+    </text>
+
+    <text x="440" y={CORE.y + 33} class="lbl light">
+      FR-4: fibra de vidro e epóxi
+    </text>
+
+    <line x1={HOLES[1]} y1={BOT + 6} x2="250" y2="276" class="leader" />
+    <text x="254" y="280" class="lbl">
+      Furo metalizado com solda
+    </text>
+    <line x1={VIA} y1={BOT + 6} x2="372" y2="256" class="leader" />
+    <text x="376" y="260" class="lbl">
+      Via (passagem entre os lados)
+    </text>
+    <line x1={HOLES[0] - 14} y1={BOT + 8} x2="70" y2="300" class="leader" />
+    <text x="40" y="314" class="lbl">
+      Solda no lado de baixo
+    </text>
+    <line x1="520" y1={BOT + 3} x2="520" y2="292" class="leader" />
+    <text x="520" y="306" class="lbl mid">
+      Cobre do lado de baixo (plano de terra)
+    </text>
+    <line x1="485" y1={TOP - 4} x2="440" y2="64" class="leader" />
+    <text x="436" y="58" class="lbl end">
+      Ilha (pad) exposta
+    </text>
+  </g>
+</svg>
+
+<style>
+  .fig {
+    font-family: var(--font-sans);
+    max-width: 100%;
+    height: auto;
+  }
+  .core {
+    fill: #c9b878;
+  }
+  .fibre {
+    stroke: #b09d5c;
+    stroke-width: 1;
+    stroke-dasharray: 14 6;
+  }
+  .cu {
+    fill: var(--copper);
+  }
+  .mask {
+    fill: #1f7a46;
+  }
+  .silk {
+    fill: #f4f4ef;
+    stroke: #9aa0a6;
+    stroke-width: 0.5;
+  }
+  .drill {
+    fill: var(--surface);
+  }
+  .solder {
+    fill: #c4c8cc;
+    stroke: #8e949a;
+    stroke-width: 1;
+  }
+  .lead {
+    fill: none;
+    stroke: #9aa0a6;
+    stroke-width: 4;
+  }
+  .body {
+    fill: #d9c49a;
+    stroke: #a8916a;
+    stroke-width: 1;
+  }
+  .band {
+    stroke: none;
+  }
+  .b0 {
+    fill: #6b3d1f;
+  }
+  .b1 {
+    fill: #1c1c1e;
+  }
+  .b2 {
+    fill: #f08a1c;
+  }
+  .b3 {
+    fill: #c9a227;
+  }
+  .smd {
+    fill: #1c1c1e;
+  }
+  .smd-end {
+    fill: #c4c8cc;
+  }
+  .leader {
+    stroke: var(--fg-subtle);
+    stroke-width: 1;
+  }
+  text {
+    fill: var(--fg);
+    font-size: 13px;
+  }
+  .title {
+    font-size: 14px;
+    font-weight: 700;
+    text-anchor: middle;
+  }
+  .lbl.mid {
+    text-anchor: middle;
+  }
+  .lbl.end {
+    text-anchor: end;
+  }
+  .light {
+    fill: #2b2b2b;
+  }
+  .tiny {
+    font-size: 9px;
+    text-anchor: middle;
+    font-weight: 700;
+  }
+  .tiny.light {
+    fill: #f4f4ef;
+  }
+</style>
