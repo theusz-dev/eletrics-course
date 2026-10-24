@@ -1,0 +1,113 @@
+/* Module 15: the fault hunt, the component bench and the guided case. */
+
+.caca__desenho {
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  height: auto;
+  margin: 0 auto;
+  font-family: var(--font-sans);
+}
+
+.caca__fio {
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.caca__fio--grosso {
+  stroke-width: 4;
+}
+
+.caca__peca {
+  fill: var(--bg);
+  stroke: var(--fg);
+  stroke-width: 2;
+}
+
+.caca__peca--vazia {
+  fill: none;
+}
+
+.caca__lampada {
+  fill: var(--warning);
+  stroke: none;
+  transition: fill-opacity 0.3s;
+}
+
+.caca__no {
+  fill: var(--fg);
+}
+
+.caca__rotulo,
+.caca__sinal {
+  fill: var(--fg);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.caca__rotulo--meio {
+  text-anchor: middle;
+}
+
+.caca__rotulo--fim {
+  text-anchor: end;
+}
+
+.caca__tp {
+  cursor: pointer;
+}
+
+.caca__tp-alvo {
+  fill: transparent;
+}
+
+.caca__tp-ponto {
+  fill: var(--bg);
+  stroke: var(--fg-muted);
+  stroke-width: 2;
+}
+
+.caca__tp[data-probe='red'] .caca__tp-ponto {
+  fill: #d0312d;
+  stroke: #d0312d;
+}
+
+.caca__tp[data-probe='black'] .caca__tp-ponto {
+  fill: var(--fg);
+  stroke: var(--fg);
+}
+
+.caca__tp-nome {
+  fill: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.caca__sintoma {
+  margin: 0;
+}
+
+.caca__leitura {
+  font-variant-numeric: tabular-nums;
+}
+
+.caca__log ol {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.caca__resultado[data-ok],
+.bancada__veredito[data-ok],
+.roteiro__retorno[data-ok] {
+  color: var(--success);
+}
+
+.caca__resultado[data-erro],
+.bancada__veredito[data-erro],
+.roteiro__retorno[data-erro] {
+  color: var(--danger);
+}
